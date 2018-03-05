@@ -19,7 +19,7 @@ GLint Window::geometryShaderProgramID;
 GLint Window::lineShaderProgramID;
 
 // Default camera parameters
-glm::vec3 cam_pos(0.0f, 0.0f, 0.0f);         // e  | Position of camera
+glm::vec3 cam_pos(0.0f, 0.0f, 500.0f);         // e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 10.0f);    // d  | This is where the camera looks at
 glm::vec3 cam_up(0.0f, 1.0f, 0.0f);          // up | What orientation "up" is
 
@@ -53,6 +53,26 @@ void Window::initialize_objects()
     Window::skyboxShaderProgramID = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
     Window::geometryShaderProgramID = LoadShaders(GEOMETRY_VERTEX_SHADER_PATH, GEOMETRY_FRAGMENT_SHADER_PATH);
     Window::lineShaderProgramID = LoadShaders(LINE_VERTEX_SHADER_PATH, LINE_FRAGMENT_SHADER_PATH);
+    
+    // Load in each of the objects as geometry node for the scene graph
+    //std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID);
+    std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID);
+    
+    // Attach race track to whole floating race track group
+    std::shared_ptr<Group> floatingRaceTrack = std::make_shared<Group>();
+    std::shared_ptr<Transform> stadiumScale =
+        std::make_shared<Transform>( glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f)));
+    stadiumScale->addChild( stadium );
+    floatingRaceTrack->addChild( stadiumScale );
+    
+    
+    // Attach stuffs to root of scene graph
+    sceneGraphRoot = std::make_unique<Group>();
+    sceneGraphRoot->addChild( floatingRaceTrack );
+    //sceneGraphRoot->addChild( balloon );
+    
+    // Initialize skybox
+    Window::skybox = std::make_unique<SkyBox>(SKYBOX_PATH, 1000.0f);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -122,7 +142,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
     
     if (height > 0)
     {
-        P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 5000.0f);
+        P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 3000.0f);
         V = glm::lookAt(cam_pos, cam_look_at, cam_up);
     }
 }
@@ -139,6 +159,9 @@ void Window::display_callback(GLFWwindow* window)
     
     // Render the skybox
     skybox->draw(skyboxShaderProgramID);
+    
+    // Draw objects in scene graph
+    sceneGraphRoot->draw(glm::mat4(1.0f));
     
     // Gets events, including input such as keyboard and mouse or window resizing
     glfwPollEvents();
@@ -197,27 +220,29 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
     // Left click is being held - Move camera when camera is at origin
     if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ) {
         
+        cameraDistanceFromCenter = 500.0f;
+        
         // Calculate the new direction to look at on the XZ plane
         float degreeChange2D = lastCursorPosition.x - xpos;
-        Window::lookAt2DPlaneDegree += degreeChange2D / 10.0f;
-        if( Window::lookAt2DPlaneDegree > 360.0f || Window::lookAt2DPlaneDegree < -360.0f )
-            Window::lookAt2DPlaneDegree = 0.0f;
+        Window::cameraXZ_angle += degreeChange2D / 10.0f;
+        if( Window::cameraXZ_angle > 360.0f || Window::cameraXZ_angle < -360.0f )
+            Window::cameraXZ_angle = 0.0f;
+        
         
         // Update the y direction of the camera
         float degreeChangeY = lastCursorPosition.y - ypos;
-        Window::lookAtYDegree += degreeChangeY / 5.0f;
-        if( Window::lookAtYDegree > 90.0f )
-            Window::lookAtYDegree = 90.0f;
-        if( Window::lookAtYDegree < -90.0f )
-            Window::lookAtYDegree = -90.0f;
+        Window::cameraY_angle += degreeChangeY / 5.0f;
+        if( Window::cameraY_angle > 89.0f )
+            Window::cameraY_angle = 89.0f;
+        if( Window::cameraY_angle < -89.0f )
+            Window::cameraY_angle = -89.0f;
         
-        // Update where the camera is looking at
-        cam_look_at = glm::vec3(sin(glm::radians( Window::lookAt2DPlaneDegree )),
-                                sin(glm::radians( Window::lookAtYDegree )),
-                                cos(glm::radians( Window::lookAt2DPlaneDegree )));
+        float alpha = glm::radians(cameraXZ_angle);
+        float beta = glm::radians(cameraY_angle);
         
-        // Update the view transformation
-        V = glm::lookAt(cam_pos, cam_look_at, cam_up);
+        // Update camera position and where we're looking
+        cam_pos = glm::vec3(sin(alpha) * cos(beta), sin(beta), cos(alpha) * cos(beta));
+        V = glm::lookAt(cam_pos * cameraDistanceFromCenter, cam_look_at, cam_up);
         
     }
     

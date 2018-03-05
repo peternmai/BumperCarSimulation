@@ -28,8 +28,8 @@
 #define SKYBOX_WIDTH 2000
 #define SKYBOX_HEIGHT 2000
 
-static const std::array<const std::string, 6>  SKY_BOX_ENDING {"_ft.tga", "_bk.tga",
-    "_up.tga", "_dn.tga", "_rt.tga", "_lf.tga"};
+static const std::array<const std::string, 6>  SKY_BOX_ENDING {"_rt.jpg", "_lf.jpg",
+    "_up.jpg", "_dn.jpg", "_ft.jpg", "_bk.jpg"};
 
 static const float SKY_BOX_VERTICES[] = {
     

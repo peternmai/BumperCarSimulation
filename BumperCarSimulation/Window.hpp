@@ -32,10 +32,11 @@
 #define LINE_FRAGMENT_SHADER_PATH "../Shaders/lineShader.frag"
 
 // Specify the location of each of the object file
-
+#define BALLOON_OBJECT_PATH "../Objects/Low-Poly_airship.obj"
+#define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
 
 // Specify where the skybox data is
-#define SKYBOX_PATH "../Skybox/impaler-point"
+#define SKYBOX_PATH "../Skybox/rainb"
 
 // Define each scene graph's key
 #define SCENE_GRAPH_HEAD_MOVEMENT 1
