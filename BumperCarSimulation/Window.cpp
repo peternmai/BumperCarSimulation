@@ -26,7 +26,7 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);          // up | What orientation "up" is
 // Store basic information regarding camera movement
 float Window::lookAt2DPlaneDegree(0.0f);
 float Window::lookAtYDegree(0.0f);
-float Window::cameraDistanceFromCenter = 400.0f;
+float Window::cameraDistanceFromCenter = 500.0f;
 float Window::cameraXZ_angle = 0.0f;
 float Window::cameraY_angle = 0.0f;
 
@@ -55,7 +55,8 @@ void Window::initialize_objects()
     Window::lineShaderProgramID = LoadShaders(LINE_VERTEX_SHADER_PATH, LINE_FRAGMENT_SHADER_PATH);
     
     // Load in each of the objects as geometry node for the scene graph
-    //std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID);
+    std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID);
+    std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID);
     std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID);
     
     // Attach race track to whole floating race track group
@@ -65,11 +66,27 @@ void Window::initialize_objects()
     stadiumScale->addChild( stadium );
     floatingRaceTrack->addChild( stadiumScale );
     
+    // Attach hot air balloon
+    std::shared_ptr<Transform> balloonScale =
+        std::make_shared<Transform>( glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f) ));
+    balloonScale->addChild( balloon );
+    std::shared_ptr<Transform> balloonMoveUp =
+        std::make_shared<Transform>( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 250.0f, 0.0f)));
+    balloonMoveUp->addChild( balloonScale );
+    floatingRaceTrack->addChild( balloonMoveUp );
+    
+    // Attach car
+    std::shared_ptr<Transform> scaleCar1 =
+        std::make_shared<Transform>( glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f)));
+    scaleCar1->addChild( car1 );
+    std::shared_ptr<Transform> moveCarsAboveGround =
+        std::make_shared<Transform>( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 4.0f, 0.0f)));
+    moveCarsAboveGround->addChild( scaleCar1 );
+    floatingRaceTrack->addChild( moveCarsAboveGround );
     
     // Attach stuffs to root of scene graph
     sceneGraphRoot = std::make_unique<Group>();
     sceneGraphRoot->addChild( floatingRaceTrack );
-    //sceneGraphRoot->addChild( balloon );
     
     // Initialize skybox
     Window::skybox = std::make_unique<SkyBox>(SKYBOX_PATH, 1000.0f);
@@ -220,8 +237,6 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
     // Left click is being held - Move camera when camera is at origin
     if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ) {
         
-        cameraDistanceFromCenter = 500.0f;
-        
         // Calculate the new direction to look at on the XZ plane
         float degreeChange2D = lastCursorPosition.x - xpos;
         Window::cameraXZ_angle += degreeChange2D / 10.0f;
@@ -258,5 +273,12 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
 
 void Window::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
+    cameraDistanceFromCenter += (float) yoffset;
     
+    if( cameraDistanceFromCenter < 50.0f )
+        cameraDistanceFromCenter = 50.0f;
+    if( cameraDistanceFromCenter > 800.0f )
+        cameraDistanceFromCenter = 800.0f;
+    
+    V = glm::lookAt(cam_pos * cameraDistanceFromCenter, cam_look_at, cam_up);
 }

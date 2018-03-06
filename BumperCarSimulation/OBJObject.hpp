@@ -31,10 +31,18 @@ private:
     
     std::string filepath;
     
-    struct TriangleDescriptionIndices {
-        std::vector<unsigned int> vertexIndex;
-        std::vector<unsigned int> textureIndex;
-        std::vector<unsigned int> normalIndex;
+    struct Vertex {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec3 color;
+        glm::vec3 textureCoordinate;
+    };
+    
+    struct Material {
+        glm::vec3 Ka;
+        glm::vec3 Kd;
+        glm::vec3 Ks;
+        glm::vec3 Ke;
     };
     
     // These variables are needed for the shader program
@@ -43,11 +51,16 @@ private:
     
     unsigned int numberOfVerticesToDraw = 0;
     
-    std::vector<unsigned int> indices;
     std::vector<glm::vec3> verticesAttributes;
+    std::unordered_map<unsigned int, Vertex> verticesAttributesMap;
+    std::unordered_map<std::string, Material> materialMap;
+
+    std::vector<unsigned int> indices;
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
-    std::vector<TriangleDescriptionIndices> triangleIndices;
+    std::vector<glm::vec3> textureCoordinates;
+    
+    
     glm::mat4 toWorld;
     
     float size;
@@ -60,6 +73,8 @@ private:
     glm::vec3 scale;
     glm::vec3 position;
     glm::mat4 spinDirection;
+    
+    void parseMTL(std::string filepath);
     
 public:
     

@@ -32,7 +32,8 @@
 #define LINE_FRAGMENT_SHADER_PATH "../Shaders/lineShader.frag"
 
 // Specify the location of each of the object file
-#define BALLOON_OBJECT_PATH "../Objects/Low-Poly_airship.obj"
+#define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
+#define CAR_01_OBJECT_PATH "../Objects/Car1.obj"
 #define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
 
 // Specify where the skybox data is
