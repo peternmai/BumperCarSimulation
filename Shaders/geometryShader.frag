@@ -5,6 +5,7 @@ in vec3 vertexNormal;
 in vec3 vertexColor;
 in vec3 vertexPosition;
 in mat4 modelView;
+in vec4 shadowCoordinate;
 
 // Variables passed in from CPU
 struct Material {
@@ -26,6 +27,10 @@ uniform float specular;
 uniform float shininess;
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
+uniform float drawShadow;
+
+// Shadow map
+uniform sampler2D shadowMap;
 
 // Output the color of the current fragment
 out vec4 color;
@@ -66,5 +71,24 @@ void main()
 
     // Color after factoring in directional light
     color += vec4((dl_ambient + dl_diffuse + dl_specular) * material.color, 0.0f);
-    //color = vec4(directionalLight.direction, 1.0f);
+
+    // Poisson Sampling Constant
+    vec2 poissonDisk[4] = vec2[](
+                                 vec2( -0.94201624, -0.39906216 ),
+                                 vec2( 0.94558609, -0.76890725 ),
+                                 vec2( -0.094184101, -0.92938870 ),
+                                 vec2( 0.34495938, 0.29387760 )
+                                 );
+
+    // Calculate the shadow
+    float visibility = 1.0f;
+    float bias = 0.005; //max(0.005f, 0.02f * (1.0f - dot(normal, directionalLight.direction)));
+    for(int i = 0; i < 4; i++) {
+        if( texture(shadowMap, shadowCoordinate.xy + poissonDisk[i] / 1000.0f).r < (shadowCoordinate.z-bias) )
+            visibility = visibility - 0.15f;
+    }
+
+    // Account for shadow
+    if( drawShadow == 1.0f )
+        color *= visibility;
 }

@@ -8,12 +8,16 @@ layout (location = 2) in vec3 color;
 // Uniform variables sent over from CPU
 uniform mat4 projection;
 uniform mat4 modelview;
+uniform mat4 toWorld;
+uniform mat4 shadowDepthBias;
+uniform mat4 worldToLightSpace;
 
 // Outputs of vertex shader to be sent to fragment shader
 out vec3 vertexNormal;
 out vec3 vertexColor;
 out vec3 vertexPosition;
 out mat4 modelView;
+out vec4 shadowCoordinate;
 
 void main()
 {
@@ -22,4 +26,5 @@ void main()
     vertexColor = color;
     vertexPosition = position;
     modelView = modelview;
+    shadowCoordinate = shadowDepthBias * toWorld * vec4(position, 1.0f);
 }

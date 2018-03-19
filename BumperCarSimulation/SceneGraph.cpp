@@ -25,6 +25,18 @@ void Group::draw(const glm::mat4 & C)
         child->draw( newModelView );
 }
 
+void Group::firstPassShadowMap(const glm::mat4 & C) {
+    glm::mat4 newModelView = C * this->toWorld;
+    for( std::shared_ptr<SceneNode> child : this->children)
+        child->firstPassShadowMap( newModelView );
+}
+
+void Group::drawShadowMap(const glm::mat4 & C) {
+    glm::mat4 newModelView = C * this->toWorld;
+    for( std::shared_ptr<SceneNode> child : this->children)
+        child->drawShadowMap( newModelView );
+}
+
 void Group::update(const glm::mat4 & C)
 {
     this->toWorld = C;
@@ -58,6 +70,18 @@ void Transform::draw(const glm::mat4 & C)
         child->draw( newModelView );
 }
 
+void Transform::firstPassShadowMap(const glm::mat4 & C) {
+    glm::mat4 newModelView = C * this->transformationMatrix;
+    for( std::shared_ptr<SceneNode> child : this->children)
+        child->firstPassShadowMap( newModelView );
+}
+
+void Transform::drawShadowMap(const glm::mat4 & C) {
+    glm::mat4 newModelView = C * this->transformationMatrix;
+    for( std::shared_ptr<SceneNode> child : this->children)
+        child->drawShadowMap( newModelView );
+}
+
 void Transform::update(const glm::mat4 & C)
 {
     this->transformationMatrix = C;
@@ -78,16 +102,31 @@ void Transform::removeChild(std::shared_ptr<SceneNode> toRemoveChild)
  * GEOMETRY
  ******************************************************************************/
 
-Geometry::Geometry( std::string OBJ_filename, GLuint shaderProgram )
+Geometry::Geometry( std::string OBJ_filename, GLuint geometryShaderProgram,
+                   GLuint shadowMapFirstPassShaderProgram, GLuint shadowMapShaderProgram )
 {
     this->object = std::make_unique<OBJObject>(OBJ_filename.c_str(), 2.0f);
-    this->shaderProgramID = shaderProgram;
+    this->geometryShaderProgramID = geometryShaderProgram;
+    this->shadowFirstPassShaderProgramID = shadowMapFirstPassShaderProgram;
+    this->shadowMapShaderProgramID = shadowMapShaderProgram;
 }
 
 void Geometry::draw(const glm::mat4 & C)
 {
     glm::mat4 toWorld = C;
-    this->object->draw(this->shaderProgramID, toWorld);
+    this->object->draw(this->geometryShaderProgramID, toWorld);
+}
+
+void Geometry::firstPassShadowMap(const glm::mat4 & C)
+{
+    glm::mat4 toWorld = C;
+    this->object->firstPassShadowMap(this->shadowFirstPassShaderProgramID, toWorld);
+}
+
+void Geometry::drawShadowMap(const glm::mat4 & C)
+{
+    glm::mat4 toWorld = C;
+    this->object->drawShadowDepthMap(this->shadowMapShaderProgramID, toWorld);
 }
 
 void Geometry::update(const glm::mat4 & C)

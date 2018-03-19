@@ -28,9 +28,10 @@ OBJObject::OBJObject(const char *filepath, float boxSize)
     this->position = glm::vec3(0.0f, 0.0f, 0.0f);
     this->pointSize = 1;
     this->angle = 0.0f;
+    this->drawShadow = true;
     
     // Set the default material coefficient
-    material.ambientCoefficient = 0.1f;
+    material.ambientCoefficient = 0.2f;
     material.diffuseCoefficient = 0.5f;
     material.specularCoefficient = 1.0f;
     material.shininessConstant = 36.0f;
@@ -315,22 +316,125 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     // Get location of uniform variables projection and modelview to forward to shader
     this->uProjection = glGetUniformLocation(shaderProgram, "projection");
     this->uModelview = glGetUniformLocation(shaderProgram, "modelview");
+    this->uModel = glGetUniformLocation(shaderProgram, "toWorld");
     this->uAmbient = glGetUniformLocation(shaderProgram, "ambient");
     this->uDiffuse = glGetUniformLocation(shaderProgram, "diffuse");
     this->uSpecular = glGetUniformLocation(shaderProgram, "specular");
     this->uShiny = glGetUniformLocation(shaderProgram, "shininess");
     this->uDirectionalLightColor = glGetUniformLocation(shaderProgram, "lightColor");
     this->uDirectinalLightDirection = glGetUniformLocation(shaderProgram, "lightDirection");
+    this->uDrawShadow = glGetUniformLocation(shaderProgram, "drawShadow");
     
     // Send variables over to shader program
     glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
     glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+    glUniformMatrix4fv(uModel, 1, GL_FALSE, &this->toWorld[0][0]);
     glUniform1f(uAmbient, material.ambientCoefficient);
     glUniform1f(uDiffuse, material.diffuseCoefficient);
     glUniform1f(uSpecular, material.specularCoefficient);
     glUniform1f(uShiny, material.shininessConstant);
     glUniform3fv(uDirectionalLightColor, 1, &directionalLight.color[0]);
     glUniform3fv(uDirectinalLightDirection, 1, &directionalLight.direction[0]);
+    glUniform1f(uDrawShadow, drawShadow);
+    
+    // Send information about shadows
+    glm::mat4 depthBiasMVP = biasMatrix * this->worldToLightSpace;
+    GLuint uShadowBias = glGetUniformLocation(shaderProgram, "shadowDepthBias");
+    glUniformMatrix4fv(uShadowBias, 1, GL_FALSE, &depthBiasMVP[0][0]);
+    
+    // Send transformation over to GPU
+    GLuint uWorldToLight = glGetUniformLocation(shaderProgram, "worldToLightSpace");
+    glUniformMatrix4fv(uWorldToLight, 1, GL_FALSE, &worldToLightSpace[0][0]);
+    
+    // Draw our object (Vertex Array Object)
+    glBindVertexArray(VAO);
+    
+    // Draw each of the triangles
+    glDrawElements(GL_TRIANGLES, this->numberOfVerticesToDraw, GL_UNSIGNED_INT, 0);
+    
+    // Unbind VAO (Vertex Array Object) once complete so we won't mess it up
+    glBindVertexArray(0);
+}
+
+void OBJObject::firstPassShadowMap(GLuint shaderProgram, glm::mat4 &transformation)
+{
+    this->toWorld = glm::mat4(1.0f);
+    
+    // Move object to center to scale and rotate
+    this->toWorld = glm::translate(glm::mat4(1.0f), this->originalCenterShift) * this->toWorld;
+    this->toWorld = glm::scale(glm::mat4(1.0f), this->originalNormalizeScale) * this->toWorld;
+    
+    // Apply transformation
+    this->toWorld = transformation * this->toWorld;
+    
+    // Specify which shader program we are using
+    glUseProgram(shaderProgram);
+    
+    // Get the inverse light direction
+    glm::vec3 inverseLightDirection = Window::getSunLightDirection() * -1.0f;
+    
+    // Calculate the directional light's projection matrix
+    glm::mat4 lightProjectionMatrix = glm::ortho<float>(-400.0f, 400.0f, -400.0f, 400.0f, NEAR_PLANE, FAR_PLANE);
+    
+    // Calculate transform of each object so they're in perspective of light's POV
+    glm::mat4 lightViewMatrix = glm::lookAt(inverseLightDirection, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // Calculate the transform from world space to light space
+    this->worldToLightSpace = lightProjectionMatrix * lightViewMatrix * glm::mat4(1.0f);
+    
+    // Send transformation over to GPU
+    GLuint uWorldToLight = glGetUniformLocation(shaderProgram, "worldToLightSpace");
+    glUniformMatrix4fv(uWorldToLight, 1, GL_FALSE, &worldToLightSpace[0][0]);
+    
+    // Pass the to world transformation over to shader
+    GLuint uShadowDepthMap = glGetUniformLocation(shaderProgram, "toWorld");
+    glUniformMatrix4fv(uShadowDepthMap, 1, GL_FALSE, &this->toWorld[0][0]);
+    
+    // Draw our object (Vertex Array Object)
+    glBindVertexArray(VAO);
+    
+    // Draw each of the triangles
+    //glCullFace(GL_FRONT);
+    glDrawElements(GL_TRIANGLES, this->numberOfVerticesToDraw, GL_UNSIGNED_INT, 0);
+    //glCullFace(GL_BACK);
+    
+    // Unbind VAO (Vertex Array Object) once complete so we won't mess it up
+    glBindVertexArray(0);
+}
+
+void OBJObject::drawShadowDepthMap(GLuint shaderProgram, glm::mat4 &transformation)
+{
+    this->update();
+    this->toWorld = glm::mat4(1.0f);
+    
+    // Move object to center to scale and rotate
+    this->toWorld = glm::translate(glm::mat4(1.0f), this->originalCenterShift) * this->toWorld;
+    this->toWorld = glm::scale(glm::mat4(1.0f), this->originalNormalizeScale) * this->toWorld;
+    
+    // Apply transformation
+    this->toWorld = transformation * this->toWorld;
+    
+    // Specify which shader program we are using
+    glUseProgram(shaderProgram);
+    
+    // Pass the to world transformation over to shader
+    GLuint uToWorld = glGetUniformLocation(shaderProgram, "toWorld");
+    glUniformMatrix4fv(uToWorld, 1, GL_FALSE, &this->toWorld[0][0]);
+    
+    // Send shadow map bias to GPU
+    glm::mat4 depthBiasMVP = biasMatrix * this->worldToLightSpace;
+    GLuint uShadowBias = glGetUniformLocation(shaderProgram, "shadowDepthBias");
+    glUniformMatrix4fv(uShadowBias, 1, GL_FALSE, &depthBiasMVP[0][0]);
+    
+    // Send transformation to light space over to GPU
+    GLuint uWorldToLight = glGetUniformLocation(shaderProgram, "worldToLightSpace");
+    glUniformMatrix4fv(uWorldToLight, 1, GL_FALSE, &worldToLightSpace[0][0]);
+    
+    // Send near and far plane
+    GLuint uNearPlane = glGetUniformLocation(shaderProgram, "zNear");
+    GLuint uFarPlane = glGetUniformLocation(shaderProgram, "zFar");
+    glUniform1f(uNearPlane, NEAR_PLANE);
+    glUniform1f(uFarPlane, FAR_PLANE);
     
     // Draw our object (Vertex Array Object)
     glBindVertexArray(VAO);
@@ -345,6 +449,18 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
 void OBJObject::update()
 {
     // Update the location of the sun
-    float lightRadian = glm::radians(Window::sunDegree);
-    directionalLight.direction = glm::normalize(glm::vec3(-1.0f * glm::cos(lightRadian), -1.0f * glm::sin(lightRadian), 0.0f));
+    directionalLight.direction = Window::getSunLightDirection();
+}
+
+void OBJObject::setPhongCoefficient(float ambient, float diffuse, float specular, float shininess)
+{
+    this->material.ambientCoefficient = ambient;
+    this->material.diffuseCoefficient = diffuse;
+    this->material.specularCoefficient = specular;
+    this->material.shininessConstant = shininess;
+}
+
+void OBJObject::setShowShadow(bool choice)
+{
+    this->drawShadow = choice;
 }

@@ -60,8 +60,8 @@ private:
     
     // These variables are needed for the shader program
     GLuint VBO, VAO, EBO;
-    GLuint uProjection, uModelview;
-    GLuint uAmbient, uDiffuse, uSpecular, uShiny;
+    GLuint uProjection, uModelview, uModel;
+    GLuint uAmbient, uDiffuse, uSpecular, uShiny, uDrawShadow;
     GLuint uDirectionalLightColor, uDirectinalLightDirection;
     
     // Store the object's material and light source
@@ -78,6 +78,16 @@ private:
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec3> textureCoordinates;
+    
+    // Store information regarding shadows
+    bool drawShadow;
+    glm::mat4 worldToLightSpace;
+    glm::mat4 biasMatrix = glm::mat4(
+                         0.5, 0.0, 0.0, 0.0,
+                         0.0, 0.5, 0.0, 0.0,
+                         0.0, 0.0, 0.5, 0.0,
+                         0.5, 0.5, 0.5, 1.0
+                         );
     
     
     glm::mat4 toWorld;
@@ -102,6 +112,11 @@ public:
     
     void parse(const char* filepath, float boxSize);
     void draw(GLuint shaderProgram, glm::mat4 & transformation);
+    void firstPassShadowMap(GLuint shaderProgram, glm::mat4 &transformation);
+    void drawShadowDepthMap(GLuint shaderProgram, glm::mat4 &transformation);
+    
+    void setPhongCoefficient(float ambient, float diffuse, float specular, float shininess);
+    void setShowShadow(bool choice);
     
     void update();
     

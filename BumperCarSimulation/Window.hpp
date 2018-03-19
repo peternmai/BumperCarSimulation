@@ -22,6 +22,7 @@
 #include "SkyBox.hpp"
 #include "SceneGraph.hpp"
 #include "shader.hpp"
+#include "Particles.hpp"
 
 // Specify the location of each of the shader files
 #define SKYBOX_VERTEX_SHADER_PATH "../Shaders/skyboxShader.vert"
@@ -30,6 +31,12 @@
 #define GEOMETRY_FRAGMENT_SHADER_PATH "../Shaders/geometryShader.frag"
 #define LINE_VERTEX_SHADER_PATH "../Shaders/lineShader.vert"
 #define LINE_FRAGMENT_SHADER_PATH "../Shaders/lineShader.frag"
+#define SHADOW_FIRST_PASS_VERTEX_SHADER_PATH "../Shaders/shadowFirstPass.vert"
+#define SHADOW_FIRST_PASS_FRAGMENT_SHADER_PATH "../Shaders/shadowFirstPass.frag"
+#define SHADOW_MAP_VERTEX_SHADER "../Shaders/shadowDepthMap.vert"
+#define SHADOW_MAP_FRAGMENT_SHADER "../Shaders/shadowDepthMap.frag"
+#define PARTICLE_VERTEX_SHADER_PATH "../Shaders/particles.vert"
+#define PARTICLE_FRAGMENT_SHADER_PATH "../Shaders/particles.frag"
 
 // Specify the location of each of the object file
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
@@ -50,6 +57,12 @@
 #define SCENE_GRAPH_SQUAD_MOVEMENT 7
 #define SCENE_GRAPH_SQUAD_SCALE 8
 
+// Define shadow map specifications
+#define SHADOW_MAP_WIDTH  10000
+#define SHADOW_MAP_HEIGHT 10000
+#define NEAR_PLANE 200.0
+#define FAR_PLANE 800.0
+
 class Window
 {
     
@@ -69,27 +82,37 @@ private:
     static float cameraY_angle;
     
     // Store information about the skybox
-    static GLint skyboxShaderProgramID;
+    static GLuint skyboxShaderProgramID;
     static std::unique_ptr<SkyBox> skybox;
     
     // Store information about the scene graph
-    static GLint geometryShaderProgramID;
-    static std::unique_ptr<Group> sceneGraphRoot;
+    static GLuint geometryShaderProgramID;
+    static std::shared_ptr<Group> sceneGraphRoot;
     static std::unordered_map<int, std::shared_ptr<SceneNode>> sceneMapNodes;
     
     // Store information about the lines
-    static GLint lineShaderProgramID;
+    static GLuint lineShaderProgramID;
+    
+    // Relating to the sun
+    static std::unique_ptr<OBJObject> sun;
+    static float sunDegree;
+    static glm::mat4 sunTransform;
+    static glm::vec3 sunLightDirection;
+    
+    // Shadow map related
+    static GLuint shadowFirstPassShaderProgramID, shadowMapShaderProgramID;
+    static GLuint FBO, depthMapID;
+    static void initShadowMap();
+    
+    // Particle effects
+    static GLuint particleShaderProgramID;
+    static std::unique_ptr<Particles> particles;
     
 public:
     
     // Stores the width and height of the window
     static int width;
     static int height;
-    
-    // Relating to the sun
-    static std::unique_ptr<OBJObject> sun;
-    static float sunDegree;
-    static glm::mat4 sunTransform;
     
     // Store the projection and the view matrix
     static glm::mat4 P;
@@ -107,6 +130,10 @@ public:
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void cursor_position_callback(GLFWwindow * window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow * window, double xoffset, double yoffset);
+    
+    // Accessor forward declaration
+    static glm::vec3 getSunLightDirection();
+    static GLuint getDepthMapTextureID();
 };
 
 #endif /* Window_hpp */
