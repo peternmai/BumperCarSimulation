@@ -45,9 +45,28 @@ private:
         glm::vec3 Ke;
     };
     
+    struct MaterialForShader {
+        glm::vec3 color;
+        float ambientCoefficient;
+        float diffuseCoefficient;
+        float specularCoefficient;
+        float shininessConstant;
+    };
+    
+    struct DirectionalLightSource {
+        glm::vec3 color;
+        glm::vec3 direction;
+    };
+    
     // These variables are needed for the shader program
     GLuint VBO, VAO, EBO;
     GLuint uProjection, uModelview;
+    GLuint uAmbient, uDiffuse, uSpecular, uShiny;
+    GLuint uDirectionalLightColor, uDirectinalLightDirection;
+    
+    // Store the object's material and light source
+    MaterialForShader material;
+    DirectionalLightSource directionalLight;
     
     unsigned int numberOfVerticesToDraw = 0;
     

@@ -47,12 +47,21 @@ std::unique_ptr<SkyBox> Window::skybox;
 std::unique_ptr<Group> Window::sceneGraphRoot;
 std::unordered_map<int, std::shared_ptr<SceneNode>> Window::sceneMapNodes;
 
+// Relating to the sun
+std::unique_ptr<OBJObject> Window::sun;
+float Window::sunDegree;
+glm::mat4 Window::sunTransform;
+
 void Window::initialize_objects()
 {
     // Load the shader program. Make sure you have the correct filepath up top
     Window::skyboxShaderProgramID = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
     Window::geometryShaderProgramID = LoadShaders(GEOMETRY_VERTEX_SHADER_PATH, GEOMETRY_FRAGMENT_SHADER_PATH);
     Window::lineShaderProgramID = LoadShaders(LINE_VERTEX_SHADER_PATH, LINE_FRAGMENT_SHADER_PATH);
+    
+    // Load in the sun
+    Window::sun = std::make_unique<OBJObject>(SPHERE_OBJECT_PATH, 2.0f);
+    Window::sunDegree = 0.0f;
     
     // Load in each of the objects as geometry node for the scene graph
     std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID);
@@ -166,7 +175,12 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-    
+    // Rotate the sun
+    sunDegree = fmod(sunDegree + 1.0f, 360.0f);
+    float sunRadian = glm::radians(sunDegree);
+    glm::mat4 sunScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 20.0f));
+    sunTransform = glm::translate(glm::mat4(1.0f),
+                                  glm::vec3(500 * cos(sunRadian), 500 * sin(sunRadian),0.0f)) * sunScale;
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -179,6 +193,9 @@ void Window::display_callback(GLFWwindow* window)
     
     // Draw objects in scene graph
     sceneGraphRoot->draw(glm::mat4(1.0f));
+    
+    // Draw Sun
+    sun->draw(geometryShaderProgramID, sunTransform);
     
     // Gets events, including input such as keyboard and mouse or window resizing
     glfwPollEvents();

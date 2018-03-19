@@ -29,6 +29,13 @@ OBJObject::OBJObject(const char *filepath, float boxSize)
     this->pointSize = 1;
     this->angle = 0.0f;
     
+    // Set the default material coefficient
+    material.ambientCoefficient = 0.1f;
+    material.diffuseCoefficient = 0.5f;
+    material.specularCoefficient = 1.0f;
+    material.shininessConstant = 36.0f;
+    directionalLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
+    
     // Create container that stores all buffer info about this object -- VAO (Vertex Array Object)
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -67,6 +74,7 @@ OBJObject::OBJObject(const char *filepath, float boxSize)
     vector<glm::vec3>().swap( this->normals );
     vector<glm::vec3>().swap( this->verticesAttributes );
     unordered_map<unsigned int, Vertex>().swap( this->verticesAttributesMap );
+    unordered_map<std::string, Material>().swap( this->materialMap );
 }
 
 OBJObject::~OBJObject()
@@ -288,6 +296,7 @@ void OBJObject::parse(const char * filepath, float boxSize)
 
 void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
 {
+    this->update();
     this->toWorld = glm::mat4(1.0f);
     
     // Move object to center to scale and rotate
@@ -306,10 +315,22 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     // Get location of uniform variables projection and modelview to forward to shader
     this->uProjection = glGetUniformLocation(shaderProgram, "projection");
     this->uModelview = glGetUniformLocation(shaderProgram, "modelview");
+    this->uAmbient = glGetUniformLocation(shaderProgram, "ambient");
+    this->uDiffuse = glGetUniformLocation(shaderProgram, "diffuse");
+    this->uSpecular = glGetUniformLocation(shaderProgram, "specular");
+    this->uShiny = glGetUniformLocation(shaderProgram, "shininess");
+    this->uDirectionalLightColor = glGetUniformLocation(shaderProgram, "lightColor");
+    this->uDirectinalLightDirection = glGetUniformLocation(shaderProgram, "lightDirection");
     
     // Send variables over to shader program
     glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
     glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+    glUniform1f(uAmbient, material.ambientCoefficient);
+    glUniform1f(uDiffuse, material.diffuseCoefficient);
+    glUniform1f(uSpecular, material.specularCoefficient);
+    glUniform1f(uShiny, material.shininessConstant);
+    glUniform3fv(uDirectionalLightColor, 1, &directionalLight.color[0]);
+    glUniform3fv(uDirectinalLightDirection, 1, &directionalLight.direction[0]);
     
     // Draw our object (Vertex Array Object)
     glBindVertexArray(VAO);
@@ -323,5 +344,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
 
 void OBJObject::update()
 {
-    
+    // Update the location of the sun
+    float lightRadian = glm::radians(Window::sunDegree);
+    directionalLight.direction = glm::normalize(glm::vec3(-1.0f * glm::cos(lightRadian), -1.0f * glm::sin(lightRadian), 0.0f));
 }

@@ -35,6 +35,7 @@
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
 #define CAR_01_OBJECT_PATH "../Objects/Car1.obj"
 #define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
+#define SPHERE_OBJECT_PATH "../Objects/sphere.obj"
 
 // Specify where the skybox data is
 #define SKYBOX_PATH "../Skybox/rainb"
@@ -79,12 +80,16 @@ private:
     // Store information about the lines
     static GLint lineShaderProgramID;
     
-    
 public:
     
     // Stores the width and height of the window
     static int width;
     static int height;
+    
+    // Relating to the sun
+    static std::unique_ptr<OBJObject> sun;
+    static float sunDegree;
+    static glm::mat4 sunTransform;
     
     // Store the projection and the view matrix
     static glm::mat4 P;
