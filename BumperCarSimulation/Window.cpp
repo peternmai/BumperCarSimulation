@@ -63,6 +63,11 @@ GLuint Window::depthMapID;
 // Particles
 std::unique_ptr<Particles> Window::particles;
 
+// User Input and the Default Values
+bool Window::showShadowMap = false;
+bool Window::showShadows = true;
+bool Window::showParticles = true;
+
 void Window::initialize_objects()
 {
     // Load the shader program. Make sure you have the correct filepath up top
@@ -228,13 +233,9 @@ void Window::display_callback(GLFWwindow* window)
     // Unbind from the frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    // Draw out the shadow depth map
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glBindTexture(GL_TEXTURE_2D, depthMapID);
-    sceneGraphRoot->drawShadowMap(glm::mat4(1.0f));
-    
     // Clear the color and depth buffers
     glViewport(0, 0, width, height);
+    glBindTexture(GL_TEXTURE_2D, depthMapID);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Render the skybox
@@ -247,7 +248,18 @@ void Window::display_callback(GLFWwindow* window)
     sun->draw(geometryShaderProgramID, sunTransform);
     
     // Draw the particles
-    particles->draw(particleShaderProgramID);
+    if( showParticles )
+        particles->draw(particleShaderProgramID);
+    
+    // Draw out the shadow depth map
+    if( showShadowMap ) {
+        glScissor(0, 0, width/5, width/5);
+        glEnable(GL_SCISSOR_TEST);
+        glViewport(0, 0, width/5, width/5);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        sceneGraphRoot->drawShadowMap(glm::mat4(1.0f));
+        glDisable(GL_SCISSOR_TEST);
+    }
     
     // Gets events, including input such as keyboard and mouse or window resizing
     glfwPollEvents();
@@ -265,6 +277,23 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
         {
             // Close the window. This causes the program to also terminate.
             glfwSetWindowShouldClose(window, GL_TRUE);
+        }
+        
+        // Turn shadow feature on and off
+        else if( key == GLFW_KEY_S && mods == GLFW_MOD_SHIFT) {
+            showShadows = !showShadows;
+            showShadowMap = false;
+        }
+        
+        // Toggle shadow map display
+        else if( key == GLFW_KEY_S ) {
+            if( showShadows )
+                showShadowMap = !showShadowMap;
+        }
+        
+        // Toggle Particles
+        else if( key == GLFW_KEY_P ) {
+            showParticles = !showParticles;
         }
         
         else {
@@ -358,6 +387,10 @@ glm::vec3 Window::getSunLightDirection() {
 
 GLuint Window::getDepthMapTextureID() {
     return depthMapID;
+}
+
+float Window::getSunRadian() {
+    return glm::radians(sunDegree);
 }
 
 void Window::initShadowMap()

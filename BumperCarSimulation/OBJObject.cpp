@@ -335,7 +335,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     glUniform1f(uShiny, material.shininessConstant);
     glUniform3fv(uDirectionalLightColor, 1, &directionalLight.color[0]);
     glUniform3fv(uDirectinalLightDirection, 1, &directionalLight.direction[0]);
-    glUniform1f(uDrawShadow, drawShadow);
+    glUniform1f(uDrawShadow, (drawShadow && Window::showShadows) );
     
     // Send information about shadows
     glm::mat4 depthBiasMVP = biasMatrix * this->worldToLightSpace;
@@ -373,11 +373,15 @@ void OBJObject::firstPassShadowMap(GLuint shaderProgram, glm::mat4 &transformati
     // Get the inverse light direction
     glm::vec3 inverseLightDirection = Window::getSunLightDirection() * -1.0f;
     
+    // Calculate the camera's up direction
+    float sunDegreeRadian = Window::getSunRadian();
+    glm::vec3 cam_up = glm::vec3(-1.0f * sin(sunDegreeRadian), cos(sunDegreeRadian), 0.0f);
+    
     // Calculate the directional light's projection matrix
-    glm::mat4 lightProjectionMatrix = glm::ortho<float>(-400.0f, 400.0f, -400.0f, 400.0f, NEAR_PLANE, FAR_PLANE);
+    glm::mat4 lightProjectionMatrix = glm::ortho<float>(-350.0f, 350.0f, -350.0f, 350.0f, NEAR_PLANE, FAR_PLANE);
     
     // Calculate transform of each object so they're in perspective of light's POV
-    glm::mat4 lightViewMatrix = glm::lookAt(inverseLightDirection, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightViewMatrix = glm::lookAt(inverseLightDirection, glm::vec3(0.0f), cam_up);
     
     // Calculate the transform from world space to light space
     this->worldToLightSpace = lightProjectionMatrix * lightViewMatrix * glm::mat4(1.0f);

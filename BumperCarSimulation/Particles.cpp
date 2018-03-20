@@ -12,8 +12,10 @@
 Particles::Particles()
 {
     // Initialize all the particles
-    for(int i = 0; i < TOTAL_PARTICLES; i++)
+    for(int i = 0; i < TOTAL_PARTICLES; i++) {
         particleLife[i] = 0.0f;
+        particleDirectionResetCounter[i] = 0;
+    }
     
     // Store the updated attributes
     particleAttributes = std::vector<glm::vec3>(TOTAL_PARTICLES * 3);
@@ -74,19 +76,24 @@ void Particles::update()
         // Particle is still alive, update its position
         if( particleAlive ) {
             
-            float zDirectionChange = ((rand() % 100) - 50.0f) / 25.0f;
-            float xDirectionChange = ((rand() % 100) - 50.0f) / 25.0f;
-            float yDirectionChange = -1.0f;
+            if( particleDirectionResetCounter[i] == 0 ) {
+                particleMoveDirection[i].x = ((rand() % 100) - 50.0f) / 50.0f;
+                particleMoveDirection[i].y = -1.0f;
+                particleMoveDirection[i].z = ((rand() % 100) - 50.0f) / 50.0f;
+                particleDirectionResetCounter[i] = rand() % 25 + 20;
+            }
             
-            particlePosition[i].x += xDirectionChange;
-            particlePosition[i].y += yDirectionChange;
-            particlePosition[i].z += zDirectionChange;
+            particlePosition[i].x += particleMoveDirection[i].x;
+            particlePosition[i].y += particleMoveDirection[i].y;
+            particlePosition[i].z += particleMoveDirection[i].z;
             
             particleLife[i] -= 1.0f;
+            particleDirectionResetCounter[i] -= 1;
         }
         
         // Particle has no more life, give it a new life
         else if(particleGenerated < (TOTAL_PARTICLES * 0.05)){
+            
             particlePosition[i].x = (rand() % 500) - 250.0f;
             particlePosition[i].y = (rand() % 1000) / 1000.0f * 50.0f + 200.0f;
             particlePosition[i].z = (rand() % 500) - 250.0f;

@@ -38,6 +38,8 @@ private:
     glm::vec3 particlePosition [TOTAL_PARTICLES];
     glm::vec3 particleColor[TOTAL_PARTICLES];
     float particleLife[TOTAL_PARTICLES];
+    glm::vec3 particleMoveDirection[TOTAL_PARTICLES];
+    int particleDirectionResetCounter[TOTAL_PARTICLES];
     std::vector<glm::vec3> particleAttributes;
     
     void updateParticleAttributes();

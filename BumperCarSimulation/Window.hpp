@@ -94,8 +94,8 @@ private:
     static GLuint lineShaderProgramID;
     
     // Relating to the sun
-    static std::unique_ptr<OBJObject> sun;
     static float sunDegree;
+    static std::unique_ptr<OBJObject> sun;
     static glm::mat4 sunTransform;
     static glm::vec3 sunLightDirection;
     
@@ -109,6 +109,11 @@ private:
     static std::unique_ptr<Particles> particles;
     
 public:
+    
+    // User Inputs
+    static bool showShadowMap;
+    static bool showShadows;
+    static bool showParticles;
     
     // Stores the width and height of the window
     static int width;
@@ -134,6 +139,7 @@ public:
     // Accessor forward declaration
     static glm::vec3 getSunLightDirection();
     static GLuint getDepthMapTextureID();
+    static float getSunRadian();
 };
 
 #endif /* Window_hpp */
