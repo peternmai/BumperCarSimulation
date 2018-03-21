@@ -129,6 +129,7 @@ public:
     // Store the projection and the view matrix
     static glm::mat4 P;
     static glm::mat4 V;
+	static glm::vec3 eyePos;
 
     // Forward declaration to initialize and clean up object
     static void initialize_objects();

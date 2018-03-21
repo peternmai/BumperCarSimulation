@@ -112,6 +112,12 @@ private:
 	BoundingBox* bb;
 	bool fog = false;
 	GLuint uFog;
+
+	// stuff for bloom effect?
+	unsigned int fbo;
+	GLuint uToonShading;
+	GLuint uEyePos;
+	bool toon = false;
     
 public:
     
@@ -133,6 +139,7 @@ public:
 	BoundingBox* getBBPointer(); // Use for cleaning up OBJ to disassociate more of it
 								 // toggleFog
 	void toggleF();
+	void toggleT();
     
 };
 #endif /* OBJObject_hpp */

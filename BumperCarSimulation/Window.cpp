@@ -41,6 +41,7 @@ int Window::height;
 // Store the projection and view matrix
 glm::mat4 Window::P;
 glm::mat4 Window::V;
+glm::vec3 Window::eyePos = cam_pos;
 
 // Store previous cursor location to determine how much cursor has moved
 glm::vec2 Window::lastCursorPosition;
@@ -377,6 +378,11 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			if (linearFog)
 				showShadowMap = false;
 		}
+		if (key == GLFW_KEY_T) {
+			for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
+				(*i)->toggleToon();
+			}
+		}
 
         // Check if escape was pressed
         if (key == GLFW_KEY_ESCAPE)
@@ -461,6 +467,7 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
         
         // Update camera position and where we're looking
         cam_pos = glm::vec3(sin(alpha) * cos(beta), sin(beta), cos(alpha) * cos(beta));
+		eyePos = cam_pos;
         V = glm::lookAt(cam_pos * cameraDistanceFromCenter, cam_look_at, cam_up);
         
     }
@@ -492,6 +499,7 @@ void Window::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 	float z = cameraDistanceFromCenter * cos(alpha) * cos(beta);
 
 	cam_pos = glm::vec3(x, y, z);
+	eyePos = cam_pos;
     V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 }
 

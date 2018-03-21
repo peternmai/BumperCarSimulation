@@ -30,7 +30,13 @@ uniform float shininess;
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
 uniform float drawShadow;
+
+// Linear Fog
 uniform int fog;
+
+// Toon Shading
+uniform vec3 eyePos;
+uniform int toonShading;
 
 // Shadow map
 uniform sampler2D shadowMap;
@@ -65,12 +71,38 @@ void main()
     
     // Factor in diffuse component from directional light
     vec3 dl_lightDirection = normalize(-1.0f * directionalLight.direction);
-    vec3 dl_diffuse = material.diffuseCoefficient * max(dot(dl_lightDirection, normal), 0.0) * directionalLight.color;
+
+	float diff = material.diffuseCoefficient * max(dot(dl_lightDirection, normal), 0.0);
+
+	// TOON SHADING
+	if(toonShading == 1) {
+		if(diff < 0.2) diff = 0.0;
+		else if(diff < 0.5) diff = 0.5;
+		else if(diff < 0.8) diff = 0.8;
+		else diff = 1;
+	}
+
+    vec3 dl_diffuse = diff * directionalLight.color;
+
+
     
     // Factor in specular component from directional light
     vec3 dl_reflectionDirection = reflect(-1.0f * dl_lightDirection, normal);
     float dl_specTemp = pow(max(dot(dl_reflectionDirection, normalize(-1.0f * fragPosition)), 0.0), material.shininessConstant);
-    vec3 dl_specular = material.specularCoefficient * dl_specTemp * directionalLight.color;
+
+	float spec = material.specularCoefficient * dl_specTemp;
+	// TOON SHADING
+	/*
+	if(toonShading == 1) {
+		if(spec < 0.2) spec = 0.2;
+		else if(spec < 0.5) spec = 0.5;
+		else if(spec < 0.8) spec = 0.8;
+		else spec = 1;
+	}
+	*/
+    vec3 dl_specular = spec * directionalLight.color;
+
+
 
     // Color after factoring in directional light
     color += vec4((dl_ambient + dl_diffuse + dl_specular) * material.color, 0.0f);
@@ -95,6 +127,18 @@ void main()
     if( drawShadow == 1.0f )
         color *= visibility;
 	
+	
+	// toon shading
+	
+	if(toonShading == 1) {
+		float edge = max(0, dot(normalize(normal), normalize(eyePos - FragPos)));
+		if(edge < 0.01) {
+			vec3 tempBlack = vec3(0.0, 0.0, 0.0);
+			color = vec4(tempBlack, 1.0);
+		}
+	}
+	
+
 	// Linear Shadows
     float fogEnd = 200.0f;
     float fogStart = 20.0f;

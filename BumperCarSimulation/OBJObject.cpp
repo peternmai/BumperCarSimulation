@@ -82,6 +82,8 @@ OBJObject::OBJObject(const char *filepath, float boxSize)
 	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 	bb = new BoundingBox(extrema);
 	bb->initializePos(originalNormalizeScale, originalCenterShift);
+
+
 }
 
 OBJObject::~OBJObject()
@@ -340,6 +342,8 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     this->uDirectinalLightDirection = glGetUniformLocation(shaderProgram, "lightDirection");
     this->uDrawShadow = glGetUniformLocation(shaderProgram, "drawShadow");
 	this->uFog = glGetUniformLocation(shaderProgram, "fog");
+	this->uToonShading = glGetUniformLocation(shaderProgram, "toonShading");
+	this->uEyePos = glGetUniformLocation(shaderProgram, "eyePos");
     
     // Send variables over to shader program
     glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
@@ -358,6 +362,9 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
 	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 	int boolFog = fog ? 1 : 0;
 	glUniform1i(uFog, boolFog);
+	int boolToon = toon ? 1 : 0;
+	glUniform1i(uToonShading, boolToon);
+	glUniform3fv(uEyePos, 1, &Window::eyePos[0]);
     
     // Send information about shadows
     glm::mat4 depthBiasMVP = biasMatrix * this->worldToLightSpace;
@@ -503,4 +510,8 @@ BoundingBox * OBJObject::getBBPointer() {
 
 void OBJObject::toggleF() {
 	fog = !fog;
+}
+
+void OBJObject::toggleT() {
+	toon = !toon;
 }

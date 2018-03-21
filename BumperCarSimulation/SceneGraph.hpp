@@ -115,6 +115,7 @@ public:
 
 	BoundingBox* getBoundingBoxPointer();
 	void toggleFog();
+	void toggleToon();
 };
 
 #endif /* SceneGraph_hpp */

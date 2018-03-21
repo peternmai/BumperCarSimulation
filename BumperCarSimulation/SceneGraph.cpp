@@ -151,3 +151,7 @@ void Geometry::toggleFog() {
 	this->object->toggleF();
 }
 
+void Geometry::toggleToon() {
+	this->object->toggleT();
+}
+
