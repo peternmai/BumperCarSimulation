@@ -80,6 +80,9 @@ GLuint Window::depthMapID;
 // Particles
 std::unique_ptr<Particles> Window::particles;
 
+// Game Engine
+std::unique_ptr<GameEngine> Window::gameEngine;
+
 // User Input and the Default Values
 bool Window::showShadowMap = false;
 bool Window::showShadows = true;
@@ -153,7 +156,6 @@ void Window::initialize_objects()
 	std::shared_ptr<Transform> extraCartoRight =
 		std::make_shared<Transform>(glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 0.0f, 2.0f)));
 
-
 	transformVector.push_back(scaleCar1);
 	transformVector.push_back(scaleCar2);
 
@@ -161,6 +163,11 @@ void Window::initialize_objects()
     moveCarsAboveGround->addChild( scaleCar1 );
 	moveCarsAboveGround->addChild(extraCartoRight); // I added!
     floatingRaceTrack->addChild( moveCarsAboveGround );
+    
+    // Create the game engine and attach to scene graph
+    std::vector<std::shared_ptr<Geometry>> vehicles;
+    vehicles.push_back(car1);
+    Window::gameEngine = std::make_unique<GameEngine>(moveCarsAboveGround, TOTAL_CARS, vehicles, transformVector);
     
     // Attach stuffs to root of scene graph
     sceneGraphRoot = std::make_unique<Group>();
@@ -266,6 +273,9 @@ void Window::idle_callback()
     
     // Update all the particles
     particles->update();
+    
+    // Update all the vehicles
+    gameEngine->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -524,7 +534,6 @@ void Window::initShadowMap()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
     // Attach the depth texture as the FBO's depth buffer
-    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapID, 0);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapID, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
