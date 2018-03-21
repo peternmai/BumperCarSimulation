@@ -72,7 +72,7 @@
 #define FAR_PLANE 800.0
 
 // Define the number of cars
-#define TOTAL_CARS 50
+#define TOTAL_CARS 10
 
 class Window
 {

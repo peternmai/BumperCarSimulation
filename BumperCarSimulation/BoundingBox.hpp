@@ -37,7 +37,7 @@ public:
 	void setShaderID(GLint shaderID);
 	void setupBoxLines(std::vector<float> pts);
 	std::vector<glm::vec3> getFaces();
-	void setCol(std::vector<std::vector<bool>> colFaces);
+	void setCol(std::vector<bool> colFaces);
 	int count = 0;
 
 
@@ -53,9 +53,9 @@ private:
 	glm::vec3 originalScale = glm::vec3(1.0f);
 	glm::vec3 originalTrans = glm::vec3(1.0f);
 	glm::mat4 identity = glm::mat4(1.0f);
-	std::vector<std::vector<bool>> collisionFaces;
+	std::vector<bool> collisionFaces;
 
-	void draw(glm::mat4 & transformation, bool col, int index);
+	void draw(glm::mat4 & transformation, bool col);
 	void facepts(glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3, glm::vec3 pt4);
 	void drawpts(glm::vec3 pt0, glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3);
 

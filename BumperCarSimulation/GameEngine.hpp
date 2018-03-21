@@ -51,7 +51,7 @@ public:
     ~GameEngine();
     
     void update();
-    
+	std::vector<bool> getCols();
 };
 
 #endif /* GameEngine_hpp */

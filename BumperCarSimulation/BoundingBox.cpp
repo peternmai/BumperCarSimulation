@@ -11,9 +11,6 @@
 #include "Window.hpp"
 
 BoundingBox::BoundingBox(std::vector<float> extrema) {
-	
-	std::vector<bool> temp_bools(4, false);
-	collisionFaces.push_back(temp_bools);
 
 	setupBoxLines(extrema);
 
@@ -40,19 +37,13 @@ BoundingBox::~BoundingBox() {
 }
 
 void BoundingBox::drawFaces(glm::mat4 & transformation) {
+	if (collisionFaces.size() == 0) return;
 	count = count % collisionFaces.size();
-	for (unsigned int i = 0; i < 6; i++) {
-		if (i < 4) {
-			draw(transformation, collisionFaces[count][i], i);
-		}
-		else {
-			draw(transformation, false, i);
-		}
-	}
+	draw(transformation, collisionFaces[count]);
 	count++;
 }
 
-void BoundingBox::draw(glm::mat4 & transformation, bool col, int index) {
+void BoundingBox::draw(glm::mat4 & transformation, bool col) {
 
 	glm::vec3 color(1.0f, 1.0f, 1.0f);
 
@@ -81,7 +72,7 @@ void BoundingBox::draw(glm::mat4 & transformation, bool col, int index) {
 
 	glBindVertexArray(bbVAO);
 
-	glDrawArrays(GL_LINES, index * 10 , 10);
+	glDrawArrays(GL_LINES, 0 , 60);
 
 	glBindVertexArray(0);
 	glEnable(GL_CULL_FACE);
@@ -208,7 +199,7 @@ void BoundingBox::drawpts(glm::vec3 pt0, glm::vec3 pt1, glm::vec3 pt2, glm::vec3
 	boxlines.push_back(pt2.z);
 }
 
-void BoundingBox::setCol(std::vector<std::vector<bool>> colFaces) {
+void BoundingBox::setCol(std::vector<bool> colFaces) {
 	collisionFaces = colFaces;
 }
 
