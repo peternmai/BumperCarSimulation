@@ -139,7 +139,7 @@ void main()
 	}
 	
 
-	// Linear Shadows
+	// Linear Fog
     float fogEnd = 200.0f;
     float fogStart = 20.0f;
     vec3 fogColor = vec3(0.5, 0.5, 0.5);

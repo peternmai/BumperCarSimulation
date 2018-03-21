@@ -27,8 +27,10 @@ void main()
     vertexColor = color;
 
 	// Sending info about shadows
+    shadowCoordinate = shadowDepthBias * toWorld * vec4(position, 1.0f);
+
+    // Sending information for fog
     FragPos = vec3(modelview * vec4(position, 1.0));
     vertexPosition = position;
     modelView = modelview;
-    shadowCoordinate = shadowDepthBias * toWorld * vec4(position, 1.0f);
 }

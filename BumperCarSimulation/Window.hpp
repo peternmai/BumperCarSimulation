@@ -24,6 +24,7 @@
 #include "shader.hpp"
 #include "CollisionDetectionNP.hpp"
 #include "Particles.hpp"
+#include "GameEngine.hpp"
 
 // Specify the location of each of the shader files
 #define SKYBOX_VERTEX_SHADER_PATH "../Shaders/skyboxShader.vert"
@@ -66,6 +67,9 @@
 #define NEAR_PLANE 200.0
 #define FAR_PLANE 800.0
 
+// Define the number of cars
+#define TOTAL_CARS 10
+
 class Window
 {
     
@@ -73,6 +77,9 @@ private:
     
     static float lookAt2DPlaneDegree;
     static float lookAtYDegree;
+    
+    // Store all the car information
+    static std::unique_ptr<GameEngine> gameEngine;
     
     // Store cursor information for controlling camera
     static glm::vec2 lastCursorPosition;
@@ -93,7 +100,7 @@ private:
     static std::shared_ptr<Group> sceneGraphRoot;
     static std::unordered_map<int, std::shared_ptr<SceneNode>> sceneMapNodes;
     
-	//NEED THIS ONE
+	// Store fog information
 	static GLint bbShaderProgramID;
 	static bool linearFog;
 
