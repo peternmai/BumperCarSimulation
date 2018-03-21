@@ -88,6 +88,8 @@ std::unique_ptr<GameEngine> Window::gameEngine;
 bool Window::showShadowMap = false;
 bool Window::showShadows = true;
 bool Window::showParticles = true;
+bool Window::rotateCamera = false;
+bool Window:: rotateSun = true;
 
 void Window::initialize_objects()
 {
@@ -113,8 +115,18 @@ void Window::initialize_objects()
     particles = std::make_unique<Particles>();
     
     // Load in each of the objects as geometry node for the scene graph
+    std::vector<std::shared_ptr<Geometry>> vehicles;
     std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
     std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    vehicles.push_back(car1);
+    std::shared_ptr<Geometry> car2 = std::make_shared<Geometry>(CAR_02_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    vehicles.push_back(car2);
+    std::shared_ptr<Geometry> car3 = std::make_shared<Geometry>(CAR_03_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    vehicles.push_back(car3);
+    std::shared_ptr<Geometry> car4 = std::make_shared<Geometry>(CAR_04_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    vehicles.push_back(car4);
+    std::shared_ptr<Geometry> car5 = std::make_shared<Geometry>(CAR_05_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    vehicles.push_back(car5);
     std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
 
 	// Need Geometry for FOG
@@ -166,8 +178,6 @@ void Window::initialize_objects()
     floatingRaceTrack->addChild( moveCarsAboveGround );
     
     // Create the game engine and attach to scene graph
-    std::vector<std::shared_ptr<Geometry>> vehicles;
-    vehicles.push_back(car1);
     Window::gameEngine = std::make_unique<GameEngine>(moveCarsAboveGround, TOTAL_CARS, vehicles, transformVector);
     
     // Attach stuffs to root of scene graph
@@ -262,10 +272,13 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 void Window::idle_callback()
 {
     // Rotate the sun
-    if(sunDegree < 180.0f)
+    if(sunDegree < 180.0f && rotateSun)
         sunDegree = fmod(sunDegree + 0.25f, 360.0f);
-    else
+    else if(rotateSun)
         sunDegree = fmod(sunDegree + 2.0f, 360.0f);
+    else {};
+    
+    // Calculate transform for the sun
     float sunRadian = glm::radians(sunDegree);
     glm::mat4 sunScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 20.0f));
     sunTransform = glm::translate(glm::mat4(1.0f),
@@ -277,6 +290,10 @@ void Window::idle_callback()
     
     // Update all the vehicles
     gameEngine->update();
+    
+    // Rotate camera
+    if( rotateCamera )
+        rotateCameraAroundOrigin();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -418,6 +435,16 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
             showParticles = !showParticles;
         }
         
+        // Toggle Sun Rotate
+        else if( key == GLFW_KEY_R ) {
+            rotateSun = !rotateSun;
+        }
+        
+        // Toggle Rotate Camera
+        else if( key == GLFW_KEY_C ) {
+            rotateCamera = !rotateCamera;
+        }
+        
         else {
             // Do nothing
         }
@@ -523,6 +550,24 @@ GLuint Window::getDepthMapTextureID() {
 
 float Window::getSunRadian() {
     return glm::radians(sunDegree);
+}
+
+void Window::rotateCameraAroundOrigin()
+{
+    cameraXZ_angle += 0.25;
+    if(cameraXZ_angle < 0) cameraXZ_angle += 360.0f;
+    cameraXZ_angle = fmod(cameraXZ_angle, 360.0f);
+    
+    float alpha = glm::radians(cameraXZ_angle);
+    float beta = glm::radians(cameraY_angle);
+    
+    float x = cameraDistanceFromCenter * sin(alpha) * cos(beta);
+    float y = cameraDistanceFromCenter * sin(beta);
+    float z = cameraDistanceFromCenter * cos(alpha) * cos(beta);
+    
+    cam_pos = glm::vec3(x, y, z);
+    eyePos = cam_pos;
+    V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 }
 
 void Window::initShadowMap()

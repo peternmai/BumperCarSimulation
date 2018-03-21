@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 
-#define ARENA_BOUNDRY 90
+#define ARENA_BOUNDARY 95
 
 class GameEngine {
 private:
@@ -37,6 +37,8 @@ private:
         float orientationDegree;
         std::shared_ptr<Transform> positionTransform;
         std::shared_ptr<Transform> rotationTransform;
+        int collisionWithCarNumber;
+        bool hitWall;
     };
     
     std::vector<vehicleData> vehicles;

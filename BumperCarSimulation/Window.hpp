@@ -45,6 +45,10 @@
 // Specify the location of each of the object file
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
 #define CAR_01_OBJECT_PATH "../Objects/Car1.obj"
+#define CAR_02_OBJECT_PATH "../Objects/Car2.obj"
+#define CAR_03_OBJECT_PATH "../Objects/Car3.obj"
+#define CAR_04_OBJECT_PATH "../Objects/Car4.obj"
+#define CAR_05_OBJECT_PATH "../Objects/Car5.obj"
 #define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
 #define SPHERE_OBJECT_PATH "../Objects/sphere.obj"
 
@@ -68,7 +72,7 @@
 #define FAR_PLANE 800.0
 
 // Define the number of cars
-#define TOTAL_CARS 10
+#define TOTAL_CARS 50
 
 class Window
 {
@@ -122,12 +126,17 @@ private:
     static GLuint particleShaderProgramID;
     static std::unique_ptr<Particles> particles;
     
+    // Camera rotatation
+    static void rotateCameraAroundOrigin();
+    
 public:
     
     // User Inputs
     static bool showShadowMap;
     static bool showShadows;
     static bool showParticles;
+    static bool rotateCamera;
+    static bool rotateSun;
     
     // Stores the width and height of the window
     static int width;
