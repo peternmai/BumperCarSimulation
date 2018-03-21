@@ -14,10 +14,13 @@
 const char* window_title = "Bumper Car Simulation";
 
 // Stores the shader's program ID
-GLint Window::skyboxShaderProgramID;
-GLint Window::geometryShaderProgramID;
-GLint Window::lineShaderProgramID;
 GLint Window::bbShaderProgramID;
+GLuint Window::skyboxShaderProgramID;
+GLuint Window::geometryShaderProgramID;
+GLuint Window::lineShaderProgramID;
+GLuint Window::shadowFirstPassShaderProgramID;
+GLuint Window::shadowMapShaderProgramID;
+GLuint Window::particleShaderProgramID;
 
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 500.0f);         // e  | Position of camera
@@ -45,9 +48,8 @@ glm::vec3 Window::lastPoint;
 
 // Store different graphic objects
 std::unique_ptr<SkyBox> Window::skybox;
-std::unique_ptr<Group> Window::sceneGraphRoot;
+std::shared_ptr<Group> Window::sceneGraphRoot;
 std::unordered_map<int, std::shared_ptr<SceneNode>> Window::sceneMapNodes;
-
 
 // BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 // BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
@@ -65,6 +67,24 @@ std::vector<std::vector<bool>> collisions;
 bool Window::linearFog;
 std::vector<std::shared_ptr<Geometry>> geometryVector;
 
+// Relating to the sun
+std::unique_ptr<OBJObject> Window::sun;
+float Window::sunDegree;
+glm::mat4 Window::sunTransform;
+glm::vec3 Window::sunLightDirection;
+
+// Shadow Map
+GLuint Window::FBO;
+GLuint Window::depthMapID;
+
+// Particles
+std::unique_ptr<Particles> Window::particles;
+
+// User Input and the Default Values
+bool Window::showShadowMap = false;
+bool Window::showShadows = true;
+bool Window::showParticles = true;
+
 void Window::initialize_objects()
 {
     // Load the shader program. Make sure you have the correct filepath up top
@@ -72,12 +92,26 @@ void Window::initialize_objects()
     Window::geometryShaderProgramID = LoadShaders(GEOMETRY_VERTEX_SHADER_PATH, GEOMETRY_FRAGMENT_SHADER_PATH);
     Window::lineShaderProgramID = LoadShaders(LINE_VERTEX_SHADER_PATH, LINE_FRAGMENT_SHADER_PATH);
 	Window::bbShaderProgramID = LoadShaders(BBOX_VERTEX_SHADER_PATH, BBOX_FRAGMENT_SHADER_PATH);
-	
+    Window::particleShaderProgramID = LoadShaders(PARTICLE_VERTEX_SHADER_PATH, PARTICLE_FRAGMENT_SHADER_PATH);
+    Window::shadowMapShaderProgramID = LoadShaders(SHADOW_MAP_VERTEX_SHADER, SHADOW_MAP_FRAGMENT_SHADER);
+    Window::shadowFirstPassShaderProgramID = LoadShaders(SHADOW_FIRST_PASS_VERTEX_SHADER_PATH, SHADOW_FIRST_PASS_FRAGMENT_SHADER_PATH);
+    
+    // Load in the sun
+    Window::sun = std::make_unique<OBJObject>(SPHERE_OBJECT_PATH, 2.0f);
+    Window::sun->setPhongCoefficient(1.0f, 0.0f, 0.0f, 0.0f);
+    Window::sun->setShowShadow(false);
+    Window::sunDegree = 0.0f;
+    
+    // Load in shadow map
+    initShadowMap();
+    
+    // Load in particle class
+    particles = std::make_unique<Particles>();
     
     // Load in each of the objects as geometry node for the scene graph
-    std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
-    std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
-	std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
+    std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
+    std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
 
 	// Need Geometry for FOG
 	geometryVector.push_back(balloon);
@@ -147,6 +181,9 @@ void Window::clean_up()
     glDeleteProgram(skyboxShaderProgramID);
     glDeleteProgram(geometryShaderProgramID);
     glDeleteProgram(lineShaderProgramID);
+    
+    glDeleteFramebuffers(1, &FBO);
+    glDeleteTextures(1, &depthMapID);
 }
 
 GLFWwindow* Window::create_window(int width, int height)
@@ -158,8 +195,8 @@ GLFWwindow* Window::create_window(int width, int height)
         return NULL;
     }
     
-    // 4x antialiasing
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // 16x antialiasing
+    glfwWindowHint(GLFW_SAMPLES, 16);
     
     #ifdef __APPLE__ // Because Apple hates comforming to standards
     // Ensure that minimum OpenGL version is 3.3
@@ -213,13 +250,40 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
     }
 }
 
-void Window::idle_callback() {
+
+void Window::idle_callback()
+{
+    // Rotate the sun
+    if(sunDegree < 180.0f)
+        sunDegree = fmod(sunDegree + 0.25f, 360.0f);
+    else
+        sunDegree = fmod(sunDegree + 2.0f, 360.0f);
+    float sunRadian = glm::radians(sunDegree);
+    glm::mat4 sunScale = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 20.0f));
+    sunTransform = glm::translate(glm::mat4(1.0f),
+                                  glm::vec3(500 * cos(sunRadian), 500 * sin(sunRadian),0.0f)) * sunScale;
+    sunLightDirection = glm::vec3(sunTransform * glm::vec4(1.0f)) * -1.0f;
     
+    // Update all the particles
+    particles->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
 {
+    // Bind to shadow map buffer for write
+    glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    
+    // First pass: Generate shadow depth map
+    sceneGraphRoot->firstPassShadowMap(glm::mat4(1.0f));
+    
+    // Unbind from the frame buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
     // Clear the color and depth buffers
+    glViewport(0, 0, width, height);
+    glBindTexture(GL_TEXTURE_2D, depthMapID);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// color everything in background to fog
@@ -274,6 +338,24 @@ void Window::display_callback(GLFWwindow* window)
 	boundingbox->setCol(collisions);
 	
     
+    // Draw Sun
+    sun->draw(geometryShaderProgramID, sunTransform);
+    
+    // Draw the particles
+    if( showParticles )
+        particles->draw(particleShaderProgramID);
+    
+    // Draw out the shadow depth map
+    if( showShadowMap ) {
+        glScissor(0, 0, width/5, width/5);
+        glEnable(GL_SCISSOR_TEST);
+        glViewport(0, 0, width/5, width/5);
+		glClearColor(1.0, 1.0, 1.0, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        sceneGraphRoot->drawShadowMap(glm::mat4(1.0f));
+        glDisable(GL_SCISSOR_TEST);
+    }
+    
     // Gets events, including input such as keyboard and mouse or window resizing
     glfwPollEvents();
     // Swap buffers
@@ -291,6 +373,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
 				(*i)->toggleFog();
 			}
+
+			if (linearFog)
+				showShadowMap = false;
 		}
 
         // Check if escape was pressed
@@ -298,6 +383,23 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
         {
             // Close the window. This causes the program to also terminate.
             glfwSetWindowShouldClose(window, GL_TRUE);
+        }
+        
+        // Turn shadow feature on and off
+        else if( key == GLFW_KEY_S && mods == GLFW_MOD_SHIFT) {
+            showShadows = !showShadows;
+            showShadowMap = false;
+        }
+        
+        // Toggle shadow map display
+        else if( key == GLFW_KEY_S ) {
+            if( showShadows && !linearFog )
+                showShadowMap = !showShadowMap;
+        }
+        
+        // Toggle Particles
+        else if( key == GLFW_KEY_P ) {
+            showParticles = !showParticles;
         }
         
         else {
@@ -391,4 +493,44 @@ void Window::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 
 	cam_pos = glm::vec3(x, y, z);
     V = glm::lookAt(cam_pos, cam_look_at, cam_up);
+}
+
+glm::vec3 Window::getSunLightDirection() {
+    return sunLightDirection;
+}
+
+GLuint Window::getDepthMapTextureID() {
+    return depthMapID;
+}
+
+float Window::getSunRadian() {
+    return glm::radians(sunDegree);
+}
+
+void Window::initShadowMap()
+{
+    // Create a Frame Buffer Object (FBO) to store the depth map from the light source
+    glGenFramebuffers(1, &FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    
+    // Create 2D texture to represent depth map
+    glGenTextures(1, &depthMapID);
+    glBindTexture(GL_TEXTURE_2D, depthMapID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SHADOW_MAP_WIDTH,
+                 SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Attach the depth texture as the FBO's depth buffer
+    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapID, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapID, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    // Ensure that our Frame Buffer is good
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        exit(-1);
 }

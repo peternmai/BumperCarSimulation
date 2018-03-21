@@ -38,6 +38,8 @@ public:
     virtual ~SceneNode() = default;
     
     virtual void draw(const glm::mat4 & C) = 0;
+    virtual void firstPassShadowMap(const glm::mat4 & C) = 0;
+    virtual void drawShadowMap(const glm::mat4 & C) = 0;
     virtual void update(const glm::mat4 & C) = 0;
 };
 
@@ -55,6 +57,8 @@ public:
     Group();
     
     void draw(const glm::mat4 & C);
+    void firstPassShadowMap(const glm::mat4 & C);
+    void drawShadowMap(const glm::mat4 & C);
     void update(const glm::mat4 & C);
     
     void addChild( std::shared_ptr<SceneNode> newChild );
@@ -77,6 +81,8 @@ public:
     Transform(const glm::mat4 transformMatrix);
     
     void draw(const glm::mat4 & C);
+    void firstPassShadowMap(const glm::mat4 & C);
+    void drawShadowMap(const glm::mat4 & C);
     void update(const glm::mat4 & C);
     
     void addChild( std::shared_ptr<SceneNode> newChild );
@@ -92,16 +98,19 @@ public:
 class Geometry : public SceneNode
 {
 private:
-    GLuint shaderProgramID;
+    GLuint geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID;
     std::unique_ptr<OBJObject> object;
 	BoundingBox* box;
     
     
 public:
     
-    Geometry( std::string OBJ_filename, GLuint shaderProgram, GLuint bbShaderProgram );
+    Geometry( std::string OBJ_filename, GLuint geometryShaderProgram,
+             GLuint shadowMapFirstPassShaderProgram, GLuint shadowMapShaderProgram, GLuint bbShaderProgram);
     
     void draw(const glm::mat4 & C);
+    void firstPassShadowMap(const glm::mat4 & C);
+    void drawShadowMap(const glm::mat4 & C);
     void update(const glm::mat4 & C);
 
 	BoundingBox* getBoundingBoxPointer();
