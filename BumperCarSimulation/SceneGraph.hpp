@@ -49,7 +49,7 @@ class Group : public SceneNode
 private:
     glm::mat4 toWorld;
     std::list< std::shared_ptr<SceneNode> > children;
-    
+
 public:
     
     Group();
@@ -70,6 +70,7 @@ class Transform : public SceneNode
 private:
     glm::mat4 transformationMatrix;
     std::list< std::shared_ptr<SceneNode> > children;
+	glm::mat4 lastTransMat; // added
     
 public:
     
@@ -80,6 +81,9 @@ public:
     
     void addChild( std::shared_ptr<SceneNode> newChild );
     void removeChild( std::shared_ptr<SceneNode> toRemoveChild );
+
+	// added
+	glm::mat4 getLastTrans();
 };
 
 /******************************************************************************
@@ -90,14 +94,18 @@ class Geometry : public SceneNode
 private:
     GLuint shaderProgramID;
     std::unique_ptr<OBJObject> object;
+	BoundingBox* box;
     
     
 public:
     
-    Geometry( std::string OBJ_filename, GLuint shaderProgram );
+    Geometry( std::string OBJ_filename, GLuint shaderProgram, GLuint bbShaderProgram );
     
     void draw(const glm::mat4 & C);
     void update(const glm::mat4 & C);
+
+	BoundingBox* getBoundingBoxPointer();
+	void toggleFog();
 };
 
 #endif /* SceneGraph_hpp */

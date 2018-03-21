@@ -17,6 +17,7 @@ const char* window_title = "Bumper Car Simulation";
 GLint Window::skyboxShaderProgramID;
 GLint Window::geometryShaderProgramID;
 GLint Window::lineShaderProgramID;
+GLint Window::bbShaderProgramID;
 
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 500.0f);         // e  | Position of camera
@@ -47,17 +48,45 @@ std::unique_ptr<SkyBox> Window::skybox;
 std::unique_ptr<Group> Window::sceneGraphRoot;
 std::unordered_map<int, std::shared_ptr<SceneNode>> Window::sceneMapNodes;
 
+
+// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+CollisionDetectionNP cdnp;
+BoundingBox* boundingbox;
+
+std::vector<glm::vec3> carFaces;
+std::vector<std::shared_ptr<Transform>> transformVector;
+std::vector<std::vector<bool>> collisions;
+
+
+// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+// for linear fog
+bool Window::linearFog;
+std::vector<std::shared_ptr<Geometry>> geometryVector;
+
 void Window::initialize_objects()
 {
     // Load the shader program. Make sure you have the correct filepath up top
     Window::skyboxShaderProgramID = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
     Window::geometryShaderProgramID = LoadShaders(GEOMETRY_VERTEX_SHADER_PATH, GEOMETRY_FRAGMENT_SHADER_PATH);
     Window::lineShaderProgramID = LoadShaders(LINE_VERTEX_SHADER_PATH, LINE_FRAGMENT_SHADER_PATH);
+	Window::bbShaderProgramID = LoadShaders(BBOX_VERTEX_SHADER_PATH, BBOX_FRAGMENT_SHADER_PATH);
+	
     
     // Load in each of the objects as geometry node for the scene graph
-    std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID);
-    std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID);
-    std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID);
+    std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
+    std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
+	std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, bbShaderProgramID);
+
+	// Need Geometry for FOG
+	geometryVector.push_back(balloon);
+	geometryVector.push_back(stadium);
+	geometryVector.push_back(car1);
+
+	boundingbox = car1->getBoundingBoxPointer();
+	boundingbox->toggle(); // turn on any object's bounding boxes
+	carFaces = boundingbox->getFaces(); //get the bounding box's faces
     
     // Attach race track to whole floating race track group
     std::shared_ptr<Group> floatingRaceTrack = std::make_shared<Group>();
@@ -81,7 +110,22 @@ void Window::initialize_objects()
     scaleCar1->addChild( car1 );
     std::shared_ptr<Transform> moveCarsAboveGround =
         std::make_shared<Transform>( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 4.0f, 0.0f)));
+
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	std::shared_ptr<Transform> scaleCar2 =
+		std::make_shared<Transform>(glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f)));
+	scaleCar2->addChild(car1);
+	std::shared_ptr<Transform> extraCartoRight =
+		std::make_shared<Transform>(glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 0.0f, 2.0f)));
+
+
+	transformVector.push_back(scaleCar1);
+	transformVector.push_back(scaleCar2);
+
+	extraCartoRight->addChild(scaleCar2); // I added!
     moveCarsAboveGround->addChild( scaleCar1 );
+	moveCarsAboveGround->addChild(extraCartoRight); // I added!
     floatingRaceTrack->addChild( moveCarsAboveGround );
     
     // Attach stuffs to root of scene graph
@@ -90,6 +134,11 @@ void Window::initialize_objects()
     
     // Initialize skybox
     Window::skybox = std::make_unique<SkyBox>(SKYBOX_PATH, 1000.0f);
+
+	// Set linear fog to false
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	Window::linearFog = false;
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -164,8 +213,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
     }
 }
 
-void Window::idle_callback()
-{
+void Window::idle_callback() {
     
 }
 
@@ -173,12 +221,58 @@ void Window::display_callback(GLFWwindow* window)
 {
     // Clear the color and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// color everything in background to fog
+	if(linearFog) glClearColor(0.5, 0.5, 0.5, 1);
     
+	// Render the skybox only if linearFog isn't on
     // Render the skybox
-    skybox->draw(skyboxShaderProgramID);
+	if(!linearFog) skybox->draw(skyboxShaderProgramID);
     
     // Draw objects in scene graph
     sceneGraphRoot->draw(glm::mat4(1.0f));
+	
+	std::vector<std::vector<glm::vec3>> totalTrans;
+
+	for (auto i = transformVector.begin(); i != transformVector.end(); i++) {
+		glm::mat4 temp_car_trans = (*i)->getLastTrans();
+
+		std::vector<glm::vec3> temp_vector;
+		for (int j = 0; j < carFaces.size(); j++) {
+			glm::vec4 temp = temp_car_trans * glm::vec4(carFaces[j], 1.0f);
+			glm::vec3 correct_temp = glm::vec3(temp.x, temp.y, temp.z);
+			temp_vector.push_back(correct_temp);
+		}
+
+		totalTrans.push_back(temp_vector);
+
+	}
+
+	collisions = cdnp.intersectionTest(totalTrans);
+
+	/*
+	std::cout << "BOOL:" << std::endl;
+
+	for (int i = 0; i < collisions.size(); i++) {
+		std::cout << "CAR " << i << " ";
+		for (int j = 0; j < collisions[i].size(); j++) {
+			if (collisions[i][j] == true) {
+				std::cout << " true,";
+			}
+			else {
+				std::cout << " false,";
+			}
+		}
+		std::cout << " end" << std::endl;
+	}
+	*/
+
+	for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
+
+	}
+
+	boundingbox->setCol(collisions);
+	
     
     // Gets events, including input such as keyboard and mouse or window resizing
     glfwPollEvents();
@@ -191,6 +285,14 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
     // Check for a key press
     if (action == GLFW_PRESS)
     {
+		if (key == GLFW_KEY_B) boundingbox->toggle();
+		if (key == GLFW_KEY_F) {
+			Window::linearFog = !Window::linearFog;
+			for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
+				(*i)->toggleFog();
+			}
+		}
+
         // Check if escape was pressed
         if (key == GLFW_KEY_ESCAPE)
         {
@@ -273,12 +375,20 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
 
 void Window::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    cameraDistanceFromCenter += (float) yoffset;
+    cameraDistanceFromCenter -= 30.0f * (float) yoffset;
     
     if( cameraDistanceFromCenter < 50.0f )
         cameraDistanceFromCenter = 50.0f;
     if( cameraDistanceFromCenter > 800.0f )
         cameraDistanceFromCenter = 800.0f;
-    
-    V = glm::lookAt(cam_pos * cameraDistanceFromCenter, cam_look_at, cam_up);
+
+	float alpha = glm::radians(cameraXZ_angle);
+	float beta = glm::radians(cameraY_angle);
+
+	float x = cameraDistanceFromCenter * sin(alpha) * cos(beta);
+	float y = cameraDistanceFromCenter * sin(beta);
+	float z = cameraDistanceFromCenter * cos(alpha) * cos(beta);
+
+	cam_pos = glm::vec3(x, y, z);
+    V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 }

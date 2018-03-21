@@ -54,6 +54,7 @@ Transform::Transform( const glm::mat4 transformMatrix )
 void Transform::draw(const glm::mat4 & C)
 {
     glm::mat4 newModelView = C * this->transformationMatrix;
+	lastTransMat = newModelView;  // added
     for( std::shared_ptr<SceneNode> child : this->children )
         child->draw( newModelView );
 }
@@ -73,15 +74,23 @@ void Transform::removeChild(std::shared_ptr<SceneNode> toRemoveChild)
     this->children.remove(toRemoveChild);
 }
 
+glm::mat4 Transform::getLastTrans()
+{
+	return lastTransMat;
+}
+
 
 /******************************************************************************
  * GEOMETRY
  ******************************************************************************/
 
-Geometry::Geometry( std::string OBJ_filename, GLuint shaderProgram )
+Geometry::Geometry( std::string OBJ_filename, GLuint shaderProgram, GLuint bbShaderProgram )
 {
     this->object = std::make_unique<OBJObject>(OBJ_filename.c_str(), 2.0f);
     this->shaderProgramID = shaderProgram;
+
+	this->box = this->object->getBBPointer();
+	this->box->setShaderID(bbShaderProgram);
 }
 
 void Geometry::draw(const glm::mat4 & C)
@@ -94,3 +103,12 @@ void Geometry::update(const glm::mat4 & C)
 {
     
 }
+
+BoundingBox * Geometry::getBoundingBoxPointer() {
+	return box;
+}
+
+void Geometry::toggleFog() {
+	this->object->toggleF();
+}
+

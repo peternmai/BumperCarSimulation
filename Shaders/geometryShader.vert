@@ -12,10 +12,13 @@ uniform mat4 modelview;
 // Outputs of vertex shader to be sent to fragment shader
 out vec3 vertexNormal;
 out vec3 vertexColor;
+out vec3 FragPos;
 
 void main()
 {
     gl_Position = projection * modelview * vec4(position, 1.0f);
     vertexNormal = normals;
     vertexColor = color;
+
+    FragPos = vec3(modelview * vec4(position, 1.0));
 }

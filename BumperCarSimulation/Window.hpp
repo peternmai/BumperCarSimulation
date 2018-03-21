@@ -22,6 +22,8 @@
 #include "SkyBox.hpp"
 #include "SceneGraph.hpp"
 #include "shader.hpp"
+#include "CollisionDetectionBP.hpp"
+#include "CollisionDetectionNP.hpp"
 
 // Specify the location of each of the shader files
 #define SKYBOX_VERTEX_SHADER_PATH "../Shaders/skyboxShader.vert"
@@ -30,6 +32,8 @@
 #define GEOMETRY_FRAGMENT_SHADER_PATH "../Shaders/geometryShader.frag"
 #define LINE_VERTEX_SHADER_PATH "../Shaders/lineShader.vert"
 #define LINE_FRAGMENT_SHADER_PATH "../Shaders/lineShader.frag"
+#define BBOX_VERTEX_SHADER_PATH "../Shaders/boundingboxShader.vert"
+#define BBOX_FRAGMENT_SHADER_PATH "../Shaders/boundingboxShader.frag"
 
 // Specify the location of each of the object file
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
@@ -78,6 +82,10 @@ private:
     
     // Store information about the lines
     static GLint lineShaderProgramID;
+
+	//NEED THIS ONE
+	static GLint bbShaderProgramID;
+	static bool linearFog;
     
     
 public:
@@ -89,7 +97,7 @@ public:
     // Store the projection and the view matrix
     static glm::mat4 P;
     static glm::mat4 V;
-    
+
     // Forward declaration to initialize and clean up object
     static void initialize_objects();
     static void clean_up();

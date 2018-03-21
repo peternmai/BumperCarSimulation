@@ -23,68 +23,83 @@
 #include <glm/ext.hpp>
 #include <vector>
 #include <unordered_map>
+#include "BoundingBox.hpp"
 
 
 class OBJObject
 {
 private:
-    
-    std::string filepath;
-    
-    struct Vertex {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec3 color;
-        glm::vec3 textureCoordinate;
-    };
-    
-    struct Material {
-        glm::vec3 Ka;
-        glm::vec3 Kd;
-        glm::vec3 Ks;
-        glm::vec3 Ke;
-    };
-    
-    // These variables are needed for the shader program
-    GLuint VBO, VAO, EBO;
-    GLuint uProjection, uModelview;
-    
-    unsigned int numberOfVerticesToDraw = 0;
-    
-    std::vector<glm::vec3> verticesAttributes;
-    std::unordered_map<unsigned int, Vertex> verticesAttributesMap;
-    std::unordered_map<std::string, Material> materialMap;
 
-    std::vector<unsigned int> indices;
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec3> textureCoordinates;
-    
-    
-    glm::mat4 toWorld;
-    
-    float size;
-    float angle;
-    float pointSize;
-    
-    glm::vec3 originalCenterShift;
-    glm::vec3 originalNormalizeScale;
-    
-    glm::vec3 scale;
-    glm::vec3 position;
-    glm::mat4 spinDirection;
-    
-    void parseMTL(std::string filepath);
-    
+	std::string filepath;
+
+	struct Vertex {
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec3 color;
+		glm::vec3 textureCoordinate;
+	};
+
+	struct Material {
+		glm::vec3 Ka;
+		glm::vec3 Kd;
+		glm::vec3 Ks;
+		glm::vec3 Ke;
+	};
+
+	// These variables are needed for the shader program
+	GLuint VBO, VAO, EBO;
+	GLuint uProjection, uModelview;
+
+	unsigned int numberOfVerticesToDraw = 0;
+
+	std::vector<glm::vec3> verticesAttributes;
+	std::unordered_map<unsigned int, Vertex> verticesAttributesMap;
+	std::unordered_map<std::string, Material> materialMap;
+
+	std::vector<unsigned int> indices;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> textureCoordinates;
+
+
+	glm::mat4 toWorld;
+
+	float size;
+	float angle;
+	float pointSize;
+
+	glm::vec3 originalCenterShift;
+	glm::vec3 originalNormalizeScale;
+
+	glm::vec3 scale;
+	glm::vec3 position;
+	glm::mat4 spinDirection;
+
+	void parseMTL(std::string filepath);
+
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	std::vector<float> extrema;
+	BoundingBox* bb;
+	bool fog = false;
+	GLuint uFog;
+
 public:
-    
-    OBJObject(const char* filepath, float boxSize);
-    ~OBJObject();
-    
-    void parse(const char* filepath, float boxSize);
-    void draw(GLuint shaderProgram, glm::mat4 & transformation);
-    
-    void update();
-    
+
+	OBJObject(const char* filepath, float boxSize);
+	~OBJObject();
+
+	void parse(const char* filepath, float boxSize);
+	void draw(GLuint shaderProgram, glm::mat4 & transformation);
+
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	BoundingBox* getBBPointer(); // Use for cleaning up OBJ to disassociate more of it
+	// toggleFog
+	void toggleF();
+
+
+	void update();
+
 };
 #endif /* OBJObject_hpp */
