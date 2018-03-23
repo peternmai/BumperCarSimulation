@@ -66,7 +66,7 @@ Transform::Transform( const glm::mat4 transformMatrix )
 void Transform::draw(const glm::mat4 & C)
 {
     glm::mat4 newModelView = C * this->transformationMatrix;
-	lastTransMat = newModelView;  // added
+	lastTransMat = newModelView;
     for( std::shared_ptr<SceneNode> child : this->children )
         child->draw( newModelView );
 }

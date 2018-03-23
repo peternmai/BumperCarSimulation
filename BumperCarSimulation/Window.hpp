@@ -91,7 +91,7 @@ private:
     static std::unordered_map<int, std::shared_ptr<SceneNode>> sceneMapNodes;
     
 	// Store fog information
-	static GLint bbShaderProgramID;
+	static GLuint bbShaderProgramID;
 	static bool linearFog;
 
 	// Store information about the lines

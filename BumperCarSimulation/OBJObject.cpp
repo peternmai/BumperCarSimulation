@@ -78,8 +78,7 @@ OBJObject::OBJObject(const char *filepath, float boxSize)
     unordered_map<std::string, Material>().swap( this->materialMap );
 
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// setting up the bounding box for the object
 	bb = new BoundingBox(extrema);
 	bb->initializePos(originalNormalizeScale, originalCenterShift);
 
@@ -302,8 +301,7 @@ void OBJObject::parse(const char * filepath, float boxSize)
         verticesAttributes.push_back( verticesAttributesMap[i].color );
     }
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// getting the extrema to set up an AABB
 	this->extrema.push_back(maxX);
 	this->extrema.push_back(minX);
 	this->extrema.push_back(maxY);
@@ -358,8 +356,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     glUniform1f(uDrawShadow, (drawShadow && Window::showShadows) );
 
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// checking whether or not fog is on or off
 	int boolFog = fog ? 1 : 0;
 	glUniform1i(uFog, boolFog);
 	int boolToon = toon ? 1 : 0;
@@ -384,8 +381,7 @@ void OBJObject::draw(GLuint shaderProgram, glm::mat4 & transformation)
     // Unbind VAO (Vertex Array Object) once complete so we won't mess it up
     glBindVertexArray(0);
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// the bounding box should have the same transformation as the object
 	bb->drawFaces(transformation);
 }
 
@@ -502,12 +498,14 @@ void OBJObject::setShowShadow(bool choice)
     this->drawShadow = choice;
 }
 
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+// getting the bounding box pointer for this object, makes it easier to access
+// when the object is drawn using a scene graph
 BoundingBox * OBJObject::getBBPointer() {
 	return bb;
 }
 
+
+// toggling fog and toon shading below
 void OBJObject::toggleF() {
 	fog = !fog;
 }
