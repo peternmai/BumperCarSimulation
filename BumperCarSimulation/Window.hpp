@@ -45,25 +45,11 @@
 // Specify the location of each of the object file
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
 #define CAR_01_OBJECT_PATH "../Objects/Car1.obj"
-#define CAR_02_OBJECT_PATH "../Objects/Car2.obj"
-#define CAR_03_OBJECT_PATH "../Objects/Car3.obj"
-#define CAR_04_OBJECT_PATH "../Objects/Car4.obj"
-#define CAR_05_OBJECT_PATH "../Objects/Car5.obj"
 #define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
 #define SPHERE_OBJECT_PATH "../Objects/sphere.obj"
 
 // Specify where the skybox data is
 #define SKYBOX_PATH "../Skybox/rainb"
-
-// Define each scene graph's key
-#define SCENE_GRAPH_HEAD_MOVEMENT 1
-#define SCENE_GRAPH_LEFT_ARM_MOVEMENT 2
-#define SCENE_GRAPH_RIGHT_ARM_MOVEMENT 3
-#define SCENE_GRAPH_LEFT_LEG_MOVEMENT 4
-#define SCENE_GRAPH_RIGHT_LEG_MOVEMENT 5
-#define SCENE_GRAPH_SQUAD_ROTATE 6
-#define SCENE_GRAPH_SQUAD_MOVEMENT 7
-#define SCENE_GRAPH_SQUAD_SCALE 8
 
 // Define shadow map specifications
 #define SHADOW_MAP_WIDTH  10000

@@ -126,40 +126,18 @@ void Window::initialize_objects()
     std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
     std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
     vehicles.push_back(car1);
-    /*std::shared_ptr<Geometry> car2 = std::make_shared<Geometry>(CAR_02_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car2);
-    std::shared_ptr<Geometry> car3 = std::make_shared<Geometry>(CAR_03_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car3);
-    std::shared_ptr<Geometry> car4 = std::make_shared<Geometry>(CAR_04_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car4);
-    std::shared_ptr<Geometry> car5 = std::make_shared<Geometry>(CAR_05_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car5); */
     std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
 	
 	// Need Geometry for FOG
 	geometryVector.push_back(balloon);
 	geometryVector.push_back(stadium);
-	geometryVector.push_back(car1); /*
-	geometryVector.push_back(car2);
-	geometryVector.push_back(car3);
-	geometryVector.push_back(car4);
-	geometryVector.push_back(car5);
-	*/
+	geometryVector.push_back(car1);
+    
 	bb1 = car1->getBoundingBoxPointer();
 	bb1->toggle(); // turn on any object's bounding boxes
 	carFaces = bb1->getFaces(); //get the bounding box's faces
     balloon->getBoundingBoxPointer()->toggle();
     bb6 = balloon->getBoundingBoxPointer();
-	/*
-	bb2 = car2->getBoundingBoxPointer();
-	car2->getBoundingBoxPointer()->toggle();
-	bb3 = car3->getBoundingBoxPointer();
-	car3->getBoundingBoxPointer()->toggle();
-	bb4 = car4->getBoundingBoxPointer();
-	car4->getBoundingBoxPointer()->toggle();
-	bb5 = car5->getBoundingBoxPointer();
-	car5->getBoundingBoxPointer()->toggle();
-	*/
     
     // Attach race track to whole floating race track group
     std::shared_ptr<Group> floatingRaceTrack = std::make_shared<Group>();
