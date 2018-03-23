@@ -8,6 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		D0A44B73204D0EFE0097EC6B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0A44B72204D0EFE0097EC6B /* main.cpp */; };
+		D0BDD2D62065BD6700D7702E /* GameEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2C32065BD6600D7702E /* GameEngine.cpp */; };
+		D0BDD2D72065BD6700D7702E /* BoundingBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2C72065BD6600D7702E /* BoundingBox.cpp */; };
+		D0BDD2D82065BD6700D7702E /* CollisionDetectionNP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2CB2065BD6600D7702E /* CollisionDetectionNP.cpp */; };
+		D0BDD2D92065BD6700D7702E /* OBJObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2CC2065BD6600D7702E /* OBJObject.cpp */; };
+		D0BDD2DA2065BD6700D7702E /* shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2CD2065BD6600D7702E /* shader.cpp */; };
+		D0BDD2DB2065BD6700D7702E /* Particles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2CE2065BD6600D7702E /* Particles.cpp */; };
+		D0BDD2DC2065BD6700D7702E /* SkyBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2CF2065BD6700D7702E /* SkyBox.cpp */; };
+		D0BDD2DD2065BD6700D7702E /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2D02065BD6700D7702E /* Window.cpp */; };
+		D0BDD2DE2065BD6700D7702E /* SceneGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BDD2D52065BD6700D7702E /* SceneGraph.cpp */; };
+		D0BDD2E12065BDCC00D7702E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0BDD2E02065BDCC00D7702E /* OpenGL.framework */; };
+		D0BDD2E32065BDF700D7702E /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D0BDD2E22065BDF700D7702E /* libglfw.3.2.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +36,31 @@
 /* Begin PBXFileReference section */
 		D0A44B6F204D0EFE0097EC6B /* BumperCarSimulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BumperCarSimulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0A44B72204D0EFE0097EC6B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		D0BDD2BF2065BD5A00D7702E /* Objects */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Objects; sourceTree = "<group>"; };
+		D0BDD2C02065BD5A00D7702E /* Skybox */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Skybox; sourceTree = "<group>"; };
+		D0BDD2C12065BD5A00D7702E /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Shaders; sourceTree = "<group>"; };
+		D0BDD2C22065BD6600D7702E /* shader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = shader.hpp; sourceTree = "<group>"; };
+		D0BDD2C32065BD6600D7702E /* GameEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEngine.cpp; sourceTree = "<group>"; };
+		D0BDD2C42065BD6600D7702E /* GameEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GameEngine.hpp; sourceTree = "<group>"; };
+		D0BDD2C52065BD6600D7702E /* CollisionDetectionNP.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CollisionDetectionNP.hpp; sourceTree = "<group>"; };
+		D0BDD2C62065BD6600D7702E /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		D0BDD2C72065BD6600D7702E /* BoundingBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoundingBox.cpp; sourceTree = "<group>"; };
+		D0BDD2C82065BD6600D7702E /* Window.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Window.hpp; sourceTree = "<group>"; };
+		D0BDD2C92065BD6600D7702E /* BoundingBox.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoundingBox.hpp; sourceTree = "<group>"; };
+		D0BDD2CA2065BD6600D7702E /* Particles.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Particles.hpp; sourceTree = "<group>"; };
+		D0BDD2CB2065BD6600D7702E /* CollisionDetectionNP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollisionDetectionNP.cpp; sourceTree = "<group>"; };
+		D0BDD2CC2065BD6600D7702E /* OBJObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OBJObject.cpp; sourceTree = "<group>"; };
+		D0BDD2CD2065BD6600D7702E /* shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shader.cpp; sourceTree = "<group>"; };
+		D0BDD2CE2065BD6600D7702E /* Particles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particles.cpp; sourceTree = "<group>"; };
+		D0BDD2CF2065BD6700D7702E /* SkyBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkyBox.cpp; sourceTree = "<group>"; };
+		D0BDD2D02065BD6700D7702E /* Window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Window.cpp; sourceTree = "<group>"; };
+		D0BDD2D12065BD6700D7702E /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = main.hpp; sourceTree = "<group>"; };
+		D0BDD2D22065BD6700D7702E /* SceneGraph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SceneGraph.hpp; sourceTree = "<group>"; };
+		D0BDD2D32065BD6700D7702E /* OBJObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OBJObject.hpp; sourceTree = "<group>"; };
+		D0BDD2D42065BD6700D7702E /* SkyBox.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SkyBox.hpp; sourceTree = "<group>"; };
+		D0BDD2D52065BD6700D7702E /* SceneGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneGraph.cpp; sourceTree = "<group>"; };
+		D0BDD2E02065BDCC00D7702E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		D0BDD2E22065BDF700D7702E /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0BDD2E32065BDF700D7702E /* libglfw.3.2.dylib in Frameworks */,
+				D0BDD2E12065BDCC00D7702E /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,8 +79,12 @@
 		D0A44B66204D0EFE0097EC6B = {
 			isa = PBXGroup;
 			children = (
+				D0BDD2BF2065BD5A00D7702E /* Objects */,
+				D0BDD2C12065BD5A00D7702E /* Shaders */,
+				D0BDD2C02065BD5A00D7702E /* Skybox */,
 				D0A44B71204D0EFE0097EC6B /* BumperCarSimulation */,
 				D0A44B70204D0EFE0097EC6B /* Products */,
+				D0BDD2DF2065BDCC00D7702E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +99,38 @@
 		D0A44B71204D0EFE0097EC6B /* BumperCarSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				D0BDD2C72065BD6600D7702E /* BoundingBox.cpp */,
+				D0BDD2C92065BD6600D7702E /* BoundingBox.hpp */,
+				D0BDD2CB2065BD6600D7702E /* CollisionDetectionNP.cpp */,
+				D0BDD2C52065BD6600D7702E /* CollisionDetectionNP.hpp */,
+				D0BDD2C32065BD6600D7702E /* GameEngine.cpp */,
+				D0BDD2C42065BD6600D7702E /* GameEngine.hpp */,
+				D0BDD2D12065BD6700D7702E /* main.hpp */,
+				D0BDD2CC2065BD6600D7702E /* OBJObject.cpp */,
+				D0BDD2D32065BD6700D7702E /* OBJObject.hpp */,
+				D0BDD2CE2065BD6600D7702E /* Particles.cpp */,
+				D0BDD2CA2065BD6600D7702E /* Particles.hpp */,
+				D0BDD2D52065BD6700D7702E /* SceneGraph.cpp */,
+				D0BDD2D22065BD6700D7702E /* SceneGraph.hpp */,
+				D0BDD2CD2065BD6600D7702E /* shader.cpp */,
+				D0BDD2C22065BD6600D7702E /* shader.hpp */,
+				D0BDD2CF2065BD6700D7702E /* SkyBox.cpp */,
+				D0BDD2D42065BD6700D7702E /* SkyBox.hpp */,
+				D0BDD2C62065BD6600D7702E /* stb_image.h */,
+				D0BDD2D02065BD6700D7702E /* Window.cpp */,
+				D0BDD2C82065BD6600D7702E /* Window.hpp */,
 				D0A44B72204D0EFE0097EC6B /* main.cpp */,
 			);
 			path = BumperCarSimulation;
+			sourceTree = "<group>";
+		};
+		D0BDD2DF2065BDCC00D7702E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D0BDD2E22065BDF700D7702E /* libglfw.3.2.dylib */,
+				D0BDD2E02065BDCC00D7702E /* OpenGL.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,7 +190,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0BDD2DA2065BD6700D7702E /* shader.cpp in Sources */,
+				D0BDD2DE2065BD6700D7702E /* SceneGraph.cpp in Sources */,
+				D0BDD2DB2065BD6700D7702E /* Particles.cpp in Sources */,
+				D0BDD2D72065BD6700D7702E /* BoundingBox.cpp in Sources */,
+				D0BDD2DC2065BD6700D7702E /* SkyBox.cpp in Sources */,
+				D0BDD2DD2065BD6700D7702E /* Window.cpp in Sources */,
 				D0A44B73204D0EFE0097EC6B /* main.cpp in Sources */,
+				D0BDD2D82065BD6700D7702E /* CollisionDetectionNP.cpp in Sources */,
+				D0BDD2D92065BD6700D7702E /* OBJObject.cpp in Sources */,
+				D0BDD2D62065BD6700D7702E /* GameEngine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +313,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/Cellar/glm/0.9.8.5/include,
+					/usr/local/Cellar/glfw/3.2.1/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/glfw/3.2.1/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -241,6 +326,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/Cellar/glm/0.9.8.5/include,
+					/usr/local/Cellar/glfw/3.2.1/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/glfw/3.2.1/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
