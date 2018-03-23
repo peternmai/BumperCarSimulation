@@ -11,9 +11,11 @@
 #include "Window.hpp"
 
 BoundingBox::BoundingBox(std::vector<float> extrema) {
-
+	
+	// setting up the bounding box
 	setupBoxLines(extrema);
 
+	// creating the necessary array and buffer objects to be able to draw the pts
 	glGenVertexArrays(1, &bbVAO);
 	glBindVertexArray(bbVAO);
 
@@ -30,6 +32,8 @@ BoundingBox::BoundingBox(std::vector<float> extrema) {
 }
 
 BoundingBox::~BoundingBox() {
+
+	// deleting the vertex arrays and buffers
 	std::cout << "Deleting Vertex Arrays" << std::endl;
 	glDeleteVertexArrays(1, &bbVAO);
 	glDeleteBuffers(1, &bbVBO);
@@ -37,6 +41,8 @@ BoundingBox::~BoundingBox() {
 }
 
 void BoundingBox::drawFaces(glm::mat4 & transformation) {
+	
+	// drawing a bounding box based on the bool of collision faces telling whether it is colliding or not
 	if (collisionFaces.size() == 0) return;
 	count = count % collisionFaces.size();
 	draw(transformation, collisionFaces[count]);
@@ -44,17 +50,19 @@ void BoundingBox::drawFaces(glm::mat4 & transformation) {
 }
 
 void BoundingBox::draw(glm::mat4 & transformation, bool col) {
-
+	
+	// drawing the bounding box
 	glm::vec3 color(1.0f, 1.0f, 1.0f);
 
+	// if the bounding box is colliding, color red and if we do not
+	// want to check whether or not an object is colliding
 	if (!this->prevCollision) return;
 	if (col) color = glm::vec3(1.0f, 0.0f, 0.0f);
 
+	// transforming the bounding box to the correct position
 	this->toWorld = identity;
-
 	this->toWorld = glm::translate(identity, this->originalTrans) * this->toWorld;
 	this->toWorld = glm::scale(identity, this->originalScale) * this->toWorld;
-
 	this->toWorld = transformation * this->toWorld;
 
 	glm::mat4 modelview = Window::V * this->toWorld;
@@ -153,6 +161,8 @@ void BoundingBox::setupBoxLines(std::vector<float> pts) {
 }
 
 void BoundingBox::facepts(glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3, glm::vec3 pt4) {
+
+	// pushing back the necessary points to represent a plane to check intersection
 	faces.push_back(pt1);
 	faces.push_back(pt2);
 	faces.push_back(pt4);
@@ -163,6 +173,8 @@ void BoundingBox::facepts(glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3, glm::vec3
 
 void BoundingBox::drawpts(glm::vec3 pt0, glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3) {
 
+
+	// these points are to draw the lines of the box
 	boxlines.push_back(pt0.x);
 	boxlines.push_back(pt0.y);
 	boxlines.push_back(pt0.z);
@@ -200,10 +212,13 @@ void BoundingBox::drawpts(glm::vec3 pt0, glm::vec3 pt1, glm::vec3 pt2, glm::vec3
 }
 
 void BoundingBox::setCol(std::vector<bool> colFaces) {
+	// setting the collision bool
+	// it is actually given bools for multiple objects because the
+	// scene graph is draws multiple things using only one object
 	collisionFaces = colFaces;
 }
 
-std::vector<glm::vec3> BoundingBox::getFaces()
-{
+std::vector<glm::vec3> BoundingBox::getFaces() {
+	// getting the faces
 	return faces;
 }

@@ -88,7 +88,6 @@ public:
     void addChild( std::shared_ptr<SceneNode> newChild );
     void removeChild( std::shared_ptr<SceneNode> toRemoveChild );
 
-	// added
 	glm::mat4 getLastTrans();
 };
 

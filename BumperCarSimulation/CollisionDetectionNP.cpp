@@ -9,7 +9,15 @@ CollisionDetectionNP::~CollisionDetectionNP() {
 
 
 
-// input is a collection of CARS' collection of face vertices
+/* This is the collision detection algorithm checking if whether or not a point is within another
+** bounding box. This is done using the fact that the determinant of the point - the point in the plane
+** is negative if it behind the plane. So we check all 4 planes of the bounding box. If it matches all
+** requirements, then there is collision
+**
+** Input: a vector of vectors of points, a collection of each cars' points
+** Output: a vector of vector of bools, a collection of each cars' bools saying whether or not
+**		   a face has been collided with
+*/
 std::vector<std::vector<bool>> CollisionDetectionNP::intersectionTest(std::vector<std::vector<glm::vec3>> minmaxpts) {
 	std::vector<std::vector<bool>> colFaces;
 
@@ -44,7 +52,7 @@ std::vector<std::vector<bool>> CollisionDetectionNP::intersectionTest(std::vecto
 					float det = glm::determinant(detM);
 
 					if (det >= 0) {
-						colFaces[j][k / 4] = true; // check this
+						colFaces[j][k / 4] = true;
 					}
 				}
 

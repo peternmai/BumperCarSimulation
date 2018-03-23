@@ -14,7 +14,7 @@
 const char* window_title = "Bumper Car Simulation";
 
 // Stores the shader's program ID
-GLint Window::bbShaderProgramID;
+GLuint Window::bbShaderProgramID;
 GLuint Window::skyboxShaderProgramID;
 GLuint Window::geometryShaderProgramID;
 GLuint Window::lineShaderProgramID;
@@ -52,10 +52,10 @@ std::unique_ptr<SkyBox> Window::skybox;
 std::shared_ptr<Group> Window::sceneGraphRoot;
 std::unordered_map<int, std::shared_ptr<SceneNode>> Window::sceneMapNodes;
 
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+// for the collision detection algorithm
 CollisionDetectionNP cdnp;
 
+// need a bounding box pointer for each object
 BoundingBox* bb1;
 BoundingBox* bb2;
 BoundingBox* bb3;
@@ -68,8 +68,6 @@ std::vector<std::shared_ptr<Transform>> transformVector;
 std::vector<bool> collisions;
 
 
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 // for linear fog
 bool Window::linearFog;
 std::vector<std::shared_ptr<Geometry>> geometryVector;
@@ -126,40 +124,19 @@ void Window::initialize_objects()
     std::shared_ptr<Geometry> balloon = std::make_shared<Geometry>(BALLOON_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
     std::shared_ptr<Geometry> car1 = std::make_shared<Geometry>(CAR_01_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
     vehicles.push_back(car1);
-    /*std::shared_ptr<Geometry> car2 = std::make_shared<Geometry>(CAR_02_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car2);
-    std::shared_ptr<Geometry> car3 = std::make_shared<Geometry>(CAR_03_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car3);
-    std::shared_ptr<Geometry> car4 = std::make_shared<Geometry>(CAR_04_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car4);
-    std::shared_ptr<Geometry> car5 = std::make_shared<Geometry>(CAR_05_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
-    vehicles.push_back(car5); */
     std::shared_ptr<Geometry> stadium = std::make_shared<Geometry>(RECTANGULAR_OBJECT_PATH, geometryShaderProgramID, shadowFirstPassShaderProgramID, shadowMapShaderProgramID, bbShaderProgramID);
 	
-	// Need Geometry for FOG
+	// Need Geometry for fog
 	geometryVector.push_back(balloon);
 	geometryVector.push_back(stadium);
-	geometryVector.push_back(car1); /*
-	geometryVector.push_back(car2);
-	geometryVector.push_back(car3);
-	geometryVector.push_back(car4);
-	geometryVector.push_back(car5);
-	*/
+	geometryVector.push_back(car1);
+
+
 	bb1 = car1->getBoundingBoxPointer();
-	bb1->toggle(); // turn on any object's bounding boxes
+	bb1->toggle(); // turning on the bounding boxes
 	carFaces = bb1->getFaces(); //get the bounding box's faces
-    balloon->getBoundingBoxPointer()->toggle();
-    bb6 = balloon->getBoundingBoxPointer();
-	/*
-	bb2 = car2->getBoundingBoxPointer();
-	car2->getBoundingBoxPointer()->toggle();
-	bb3 = car3->getBoundingBoxPointer();
-	car3->getBoundingBoxPointer()->toggle();
-	bb4 = car4->getBoundingBoxPointer();
-	car4->getBoundingBoxPointer()->toggle();
-	bb5 = car5->getBoundingBoxPointer();
-	car5->getBoundingBoxPointer()->toggle();
-	*/
+    balloon->getBoundingBoxPointer()->toggle(); // toggling the balloon's bounding box
+    bb6 = balloon->getBoundingBoxPointer(); // taking it's pointer
     
     // Attach race track to whole floating race track group
     std::shared_ptr<Group> floatingRaceTrack = std::make_shared<Group>();
@@ -184,20 +161,13 @@ void Window::initialize_objects()
     std::shared_ptr<Transform> moveCarsAboveGround =
         std::make_shared<Transform>( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 4.0f, 0.0f)));
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 	std::shared_ptr<Transform> scaleCar2 =
 		std::make_shared<Transform>(glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f)));
 	scaleCar2->addChild(car1);
 	std::shared_ptr<Transform> extraCartoRight =
 		std::make_shared<Transform>(glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 0.0f, 2.0f)));
-	/*
-	transformVector.push_back(scaleCar1);
-	transformVector.push_back(scaleCar2);
 
-	extraCartoRight->addChild(scaleCar2); // I added!
-    moveCarsAboveGround->addChild( scaleCar1 );
-	moveCarsAboveGround->addChild(extraCartoRight); // I added! */
+
     floatingRaceTrack->addChild( moveCarsAboveGround );
     
     // Create the game engine and attach to scene graph
@@ -211,8 +181,6 @@ void Window::initialize_objects()
     Window::skybox = std::make_unique<SkyBox>(SKYBOX_PATH, 1000.0f);
 
 	// Set linear fog to false
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
 	Window::linearFog = false;
 }
 
@@ -349,6 +317,8 @@ void Window::display_callback(GLFWwindow* window)
 	
 	std::vector<std::vector<glm::vec3>> totalTrans;
 
+	// getting the actual positions of the bounding boxes by transforming
+	// their points
 	for (auto i = transformVector.begin(); i != transformVector.end(); i++) {
 		glm::mat4 temp_car_trans = (*i)->getLastTrans();
 
@@ -365,33 +335,13 @@ void Window::display_callback(GLFWwindow* window)
 
 	//collisions = cdnp.intersectionTest(totalTrans);
 	collisions = gameEngine->getCols();
-    
-	/*
-	std::cout << "BOOL:" << std::endl;
 
-	for (int i = 0; i < collisions.size(); i++) {
-		std::cout << "CAR " << i << " ";
-		for (int j = 0; j < collisions[i].size(); j++) {
-			if (collisions[i][j] == true) {
-				std::cout << " true,";
-			}
-			else {
-				std::cout << " false,";
-			}
-		}
-		std::cout << " end" << std::endl;
-	}
-	*/
-
+	// setting the collision bools for the object
+	// the balloon is hard set to false because it is not colliding with anything
+	// and it would be a waste to throw it into the collision detection algo
 	bb1->setCol(collisions);
     std::vector<bool> temp(6, false);
     bb6->setCol(temp);
-	/*
-	bb2->setCol(collisions);
-	bb3->setCol(collisions);
-	bb4->setCol(collisions);
-	bb5->setCol(collisions);
-	*/
 	
     
     // Draw Sun
@@ -424,19 +374,22 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (action == GLFW_PRESS)
     {
 		if (key == GLFW_KEY_B) {
+			// toggling bounding boxes for the objects
 			bb1->toggle();
             bb6->toggle();
 		}
 		if (key == GLFW_KEY_F) {
+			// turning on fog
 			Window::linearFog = !Window::linearFog;
 			for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
 				(*i)->toggleFog();
 			}
 
-			if (linearFog)
+			if (linearFog) // if we have fog, we cant have a shadow map
 				showShadowMap = false;
 		}
 		if (key == GLFW_KEY_T) {
+			// toggling on Toon shading
             for (int i = 0; i < geometryVector.size(); i++) {
                 if(i != 1) {
                     geometryVector[i]->toggleToon();

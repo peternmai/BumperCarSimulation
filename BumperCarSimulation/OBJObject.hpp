@@ -106,15 +106,15 @@ private:
     
     void parseMTL(std::string filepath);
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
+	// variables required for bounding box
 	std::vector<float> extrema;
 	BoundingBox* bb;
+
+	// variables required for fog
 	bool fog = false;
 	GLuint uFog;
 
-	// stuff for bloom effect?
-	unsigned int fbo;
+	// variables needed for toon shading
 	GLuint uToonShading;
 	GLuint uEyePos;
 	bool toon = false;
@@ -134,10 +134,8 @@ public:
     
     void update();
 
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	// BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP Needed!
-	BoundingBox* getBBPointer(); // Use for cleaning up OBJ to disassociate more of it
-								 // toggleFog
+	// used for bounding box operations, linear fog, and toon shading
+	BoundingBox* getBBPointer();
 	void toggleF();
 	void toggleT();
     

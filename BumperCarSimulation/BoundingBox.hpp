@@ -28,9 +28,14 @@
 
 class BoundingBox {
 public:
+
+	// constructor and destructor
 	BoundingBox(std::vector<float> extrema);
 	~BoundingBox();
 
+
+	// functions to give the bounding box its requirements to be able to draw
+	// mainly setters and getters
 	void drawFaces(glm::mat4 & transformation);
 	void initializePos(glm::vec3 & scale, glm::vec3 & translation);
 	void toggle();
@@ -42,12 +47,18 @@ public:
 
 
 private:
+
+	// data storage
 	std::vector<float> boxlines;
 	std::vector<glm::vec3> faces;
+
+	// things required for drawing the box
 	GLint shaderID;
 	GLuint bbVAO, bbVBO;
 	GLuint uProjection, uModelView, uColor;
 
+
+	// mathematical characteristics of the bounding box
 	glm::mat4 toWorld;
 	bool prevCollision = false;
 	glm::vec3 originalScale = glm::vec3(1.0f);
@@ -55,6 +66,8 @@ private:
 	glm::mat4 identity = glm::mat4(1.0f);
 	std::vector<bool> collisionFaces;
 
+
+	// functions to draw the points
 	void draw(glm::mat4 & transformation, bool col);
 	void facepts(glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3, glm::vec3 pt4);
 	void drawpts(glm::vec3 pt0, glm::vec3 pt1, glm::vec3 pt2, glm::vec3 pt3);

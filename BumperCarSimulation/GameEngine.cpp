@@ -145,8 +145,9 @@ void GameEngine::update() {
     }
 }
 
-std::vector<bool> GameEngine::getCols()
-{
+std::vector<bool> GameEngine::getCols() {
+
+	// getting the collision status of each car
 	std::vector<bool> temp(vehicles.size(), false);
 	for (int i = 0; i < temp.size(); i++) {
 		if (vehicles[i].collisionWithCarNumber != -1) temp[i] = true;
