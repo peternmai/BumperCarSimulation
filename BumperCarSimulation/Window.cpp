@@ -61,6 +61,7 @@ BoundingBox* bb2;
 BoundingBox* bb3;
 BoundingBox* bb4;
 BoundingBox* bb5;
+BoundingBox* bb6;
 
 std::vector<glm::vec3> carFaces;
 std::vector<std::shared_ptr<Transform>> transformVector;
@@ -94,7 +95,8 @@ bool Window::showShadowMap = false;
 bool Window::showShadows = true;
 bool Window::showParticles = true;
 bool Window::rotateCamera = false;
-bool Window:: rotateSun = true;
+bool Window::rotateSun = true;
+bool Window::prevShowShadowMap = false;
 
 void Window::initialize_objects()
 {
@@ -146,6 +148,8 @@ void Window::initialize_objects()
 	bb1 = car1->getBoundingBoxPointer();
 	bb1->toggle(); // turn on any object's bounding boxes
 	carFaces = bb1->getFaces(); //get the bounding box's faces
+    balloon->getBoundingBoxPointer()->toggle();
+    bb6 = balloon->getBoundingBoxPointer();
 	/*
 	bb2 = car2->getBoundingBoxPointer();
 	car2->getBoundingBoxPointer()->toggle();
@@ -172,7 +176,7 @@ void Window::initialize_objects()
         std::make_shared<Transform>( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 250.0f, 0.0f)));
     balloonMoveUp->addChild( balloonScale );
     floatingRaceTrack->addChild( balloonMoveUp );
-    
+    transformVector.push_back(balloonScale);
     // Attach car
     std::shared_ptr<Transform> scaleCar1 =
         std::make_shared<Transform>( glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f)));
@@ -361,8 +365,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	//collisions = cdnp.intersectionTest(totalTrans);
 	collisions = gameEngine->getCols();
-	std::cout << collisions.size() << std::endl;
-
+    
 	/*
 	std::cout << "BOOL:" << std::endl;
 
@@ -381,6 +384,8 @@ void Window::display_callback(GLFWwindow* window)
 	*/
 
 	bb1->setCol(collisions);
+    std::vector<bool> temp(6, false);
+    bb6->setCol(temp);
 	/*
 	bb2->setCol(collisions);
 	bb3->setCol(collisions);
@@ -420,10 +425,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
     {
 		if (key == GLFW_KEY_B) {
 			bb1->toggle();
-			bb2->toggle();
-			bb3->toggle();
-			bb4->toggle();
-			bb5->toggle();
+            bb6->toggle();
 		}
 		if (key == GLFW_KEY_F) {
 			Window::linearFog = !Window::linearFog;
@@ -435,9 +437,11 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				showShadowMap = false;
 		}
 		if (key == GLFW_KEY_T) {
-			for (auto i = geometryVector.begin(); i != geometryVector.end(); i++) {
-				(*i)->toggleToon();
-			}
+            for (int i = 0; i < geometryVector.size(); i++) {
+                if(i != 1) {
+                    geometryVector[i]->toggleToon();
+                }
+            }
 		}
 
         // Check if escape was pressed
@@ -450,7 +454,12 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
         // Turn shadow feature on and off
         else if( key == GLFW_KEY_S && mods == GLFW_MOD_SHIFT) {
             showShadows = !showShadows;
-            showShadowMap = false;
+            if( showShadows )
+                showShadowMap = prevShowShadowMap;
+            else {
+                prevShowShadowMap = showShadowMap;
+                showShadowMap = false;
+            }
         }
         
         // Toggle shadow map display

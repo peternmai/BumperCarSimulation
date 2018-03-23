@@ -72,7 +72,7 @@
 #define FAR_PLANE 800.0
 
 // Define the number of cars
-#define TOTAL_CARS 10
+#define TOTAL_CARS 25
 
 class Window
 {
@@ -137,6 +137,7 @@ public:
     static bool showParticles;
     static bool rotateCamera;
     static bool rotateSun;
+    static bool prevShowShadowMap;
     
     // Stores the width and height of the window
     static int width;
