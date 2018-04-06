@@ -7,9 +7,9 @@ students together! Wait.. I think I said that wrong.. computer graphics and
 
 Anywho... below is a short video of what we made! :)
 
-[![Demonstration on YouTube](/Doc/Images/Preview.png)](https://www.youtube.com/watch?v=2vXrsETn90Y)
+[![Demonstration on YouTube](/Doc/Images/Preview.png)](https://www.youtube.com/watch?v=LGYbFkSXVtw)
 
-*Link: [https://www.youtube.com/watch?v=2vXrsETn90Y](https://www.youtube.com/watch?v=2vXrsETn90Y)*
+*Link: [https://www.youtube.com/watch?v=LGYbFkSXVtw](https://www.youtube.com/watch?v=LGYbFkSXVtw)*
 
 ## Features
 
