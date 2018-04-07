@@ -51,6 +51,5 @@ ${FILENAME}${DEBUG_SUFFIX}: ${OBJS}
 
 clean:
 	${RM} *.o ${FILENAME} ${FILENAME}${DEBUG_SUFFIX}
-	${RM} -rf ${BUILD_DIR}/*.dSYM
 
 endif
