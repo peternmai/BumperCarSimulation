@@ -463,8 +463,10 @@ void Window::cursor_position_callback(GLFWwindow *window, double xpos, double yp
     
     // Determine the direction and velocity of how much we moved
     glm::vec3 curPoint = Window::trackBallMapping(window, xpos, ypos);
-    glm::vec3 direction = curPoint - Window::lastPoint;
-    float velocity = glm::length(direction);
+
+    // FIXME unused
+    // glm::vec3 direction = curPoint - Window::lastPoint;
+    // float velocity = glm::length(direction);
     
     // Left click is being held - Move camera when camera is at origin
     if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ) {
