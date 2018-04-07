@@ -32,6 +32,9 @@ void setup_callbacks()
 
 void setup_glew()
 {
+#ifdef Linux
+    glewExperimental = GL_TRUE;
+#endif
     // Initialize GLEW. Not needed on OSX systems.
 #ifndef __APPLE__
     GLenum err = glewInit();

@@ -202,7 +202,7 @@ GLFWwindow* Window::create_window(int width, int height)
     // 16x antialiasing
     glfwWindowHint(GLFW_SAMPLES, 16);
     
-    #ifdef __APPLE__ // Because Apple hates comforming to standards
+    #if defined(__APPLE__) || defined(Linux) // Because Apple hates comforming to standards
     // Ensure that minimum OpenGL version is 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -318,7 +318,7 @@ void Window::display_callback(GLFWwindow* window)
 		glm::mat4 temp_car_trans = (*i)->getLastTrans();
 
 		std::vector<glm::vec3> temp_vector;
-		for (int j = 0; j < carFaces.size(); j++) {
+		for (unsigned int j = 0; j < carFaces.size(); j++) {
 			glm::vec4 temp = temp_car_trans * glm::vec4(carFaces[j], 1.0f);
 			glm::vec3 correct_temp = glm::vec3(temp.x, temp.y, temp.z);
 			temp_vector.push_back(correct_temp);
@@ -384,7 +384,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		}
 		if (key == GLFW_KEY_T) {
 			// toggling on Toon shading
-            for (int i = 0; i < geometryVector.size(); i++) {
+            for (unsigned int i = 0; i < geometryVector.size(); i++) {
                 if(i != 1) {
                     geometryVector[i]->toggleToon();
                 }

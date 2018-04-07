@@ -25,11 +25,11 @@ using namespace std; // allow console printouts without std::
 SkyBox::SkyBox(const string filename, const float scaleAmount)
 {
     // Scale each vertices coordinate
-    for( int i = 0; i < skyBoxVertices.size(); i++ )
+    for(unsigned int i = 0; i < skyBoxVertices.size(); i++ )
         skyBoxVertices[i] = SKY_BOX_VERTICES[i] * scaleAmount;
     
     // Load image file
-    for( int i = 0; i < SKY_BOX_ENDING.size(); i++ ) {
+    for(unsigned int i = 0; i < SKY_BOX_ENDING.size(); i++ ) {
         int twidth, theight, nrChannel;
         this->skyBoxPixelData[i].skyboxFacesRGB = stbi_load((filename + SKY_BOX_ENDING[i]).c_str(), &twidth, &theight, &nrChannel, 0);
         
@@ -64,7 +64,7 @@ SkyBox::SkyBox(const string filename, const float scaleAmount)
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->skyBoxTextureID);
     
     // Bind over to GPU
-    for( int i = 0; i < this->skyBoxPixelData.size(); i++ ) {
+    for(unsigned int i = 0; i < this->skyBoxPixelData.size(); i++ ) {
         
         // Generate the texture for that face
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
@@ -86,7 +86,7 @@ SkyBox::SkyBox(const string filename, const float scaleAmount)
 
 SkyBox::~SkyBox()
 {
-    for( int i = 0; i < skyBoxPixelData.size(); i++ )
+    for(unsigned int i = 0; i < skyBoxPixelData.size(); i++ )
         delete [] skyBoxPixelData[i].skyboxFacesRGB;
     
     glDeleteVertexArrays(1, &VAO);
