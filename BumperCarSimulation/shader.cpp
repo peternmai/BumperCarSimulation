@@ -38,7 +38,10 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 #ifdef _WIN32
         system("CD");
 #else
-        system("pwd");
+        int anErr = system("pwd");
+
+        if (anErr != 0)
+            std::cout << "problem with system() " << std::endl;
 #endif
         getchar();
         return 0;

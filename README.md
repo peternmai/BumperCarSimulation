@@ -68,3 +68,11 @@ on a collision course with one another.
 
 *This was done as part of our final project for UCSD CSE 167 and was posted
 with permission from Professor Ben Ochoa.*
+
+
+#### WORK IN PROGRESS
+
+Currently building and working on Linux (x86_64 only)
+TODO : improve the quality (some strange renedering issues remain)
+ebachard / April 2018
+

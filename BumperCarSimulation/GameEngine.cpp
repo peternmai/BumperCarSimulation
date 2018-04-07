@@ -45,7 +45,7 @@ GameEngine::~GameEngine() {
 void GameEngine::update() {
     
     // Update the car's movement direction
-    for(int i = 0; i < vehicles.size(); i++) {
+    for(unsigned int i = 0; i < vehicles.size(); i++) {
         vehicles[i].hitWall = false;
         
         // Check if vehicle is approaching the left side of the arena
@@ -78,12 +78,12 @@ void GameEngine::update() {
     }
     
     // Clear past collision information
-    for(int i = 0; i < vehicles.size(); i++)
+    for(unsigned int i = 0; i < vehicles.size(); i++)
         vehicles[i].collisionWithCarNumber = -1;
     
     // Check for collision
-    for(int i = 0; i < vehicles.size(); i++) {
-        for(int j = 0; j < vehicles.size(); j++) {
+    for(unsigned int i = 0; i < vehicles.size(); i++) {
+        for(unsigned int j = 0; j < vehicles.size(); j++) {
             if(i != j) {
                 if( glm::length( vehicles[i].position - vehicles[j].position ) < 10.0f )
                     vehicles[i].collisionWithCarNumber = j;
@@ -92,7 +92,7 @@ void GameEngine::update() {
     }
     
     // If car has collision with another car, change course
-    for(int i = 0; i < vehicles.size(); i++) {
+    for(unsigned int i = 0; i < vehicles.size(); i++) {
         
         // No collisions, no worries
         if( vehicles[i].collisionWithCarNumber == -1 )
@@ -115,7 +115,7 @@ void GameEngine::update() {
     }
     
     // Update the vehicle's transform
-    for(int i = 0; i < vehicles.size(); i++) {
+    for(unsigned int i = 0; i < vehicles.size(); i++) {
     
         // Calculate the new position
         if( !(vehicles[i].hitWall && vehicles[i].collisionWithCarNumber != -1) ) {
@@ -149,7 +149,7 @@ std::vector<bool> GameEngine::getCols() {
 
 	// getting the collision status of each car
 	std::vector<bool> temp(vehicles.size(), false);
-	for (int i = 0; i < temp.size(); i++) {
+	for (unsigned int i = 0; i < temp.size(); i++) {
 		if (vehicles[i].collisionWithCarNumber != -1) temp[i] = true;
 	}
 

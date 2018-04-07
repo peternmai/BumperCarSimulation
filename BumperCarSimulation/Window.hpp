@@ -44,7 +44,7 @@
 
 // Specify the location of each of the object file
 #define BALLOON_OBJECT_PATH "../Objects/Blimp.obj"
-#define CAR_01_OBJECT_PATH "../Objects/Car1.obj"
+#define CAR_01_OBJECT_PATH "../Objects/car1.obj"
 #define RECTANGULAR_OBJECT_PATH "../Objects/RectangleBox.obj"
 #define SPHERE_OBJECT_PATH "../Objects/sphere.obj"
 
